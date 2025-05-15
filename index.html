@@ -195,8 +195,8 @@
                     <tr class="table-row border-b">
                         <td class="py-2 px-4">行政執行費</td>
                         <td class="py-2 px-4 text-center">一式</td>
-                        <td class="py-2 px-4 text-center">13%</td>
-                        <td class="py-2 px-4">人事支援 x 13% x 2500</td>
+                        <td class="py-2 px-4 text-center">10%</td>
+                        <td class="py-2 px-4">人事支援 x 10% x 2500</td>
                         <td class="py-2 px-4 text-right" id="admin-total">0</td>
                     </tr>
                     <tr class="table-row border-b">
@@ -362,7 +362,7 @@
             const heightTotal = heightQty * 1000;
             const overtimeTotal = overtimeQty * 350;
             const travelTotal = travelQty * 300;
-            const adminTotal = Math.round(staffTotal * 0.13);
+            const adminTotal = Math.round(staffTotal * 0.10);
             
             // Update line totals in the table
             document.getElementById('staff-total').textContent = formatCurrency(staffTotal);
