@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMASONIX 技術人員請款單</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f5f7fa;
+        }
+        
+        .invoice-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a2533 100%);
+        }
+        
+        .form-field {
+            transition: all 0.3s ease;
+        }
+        
+        .form-field:focus-within {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .print-button {
+            transition: all 0.3s ease;
+        }
+        
+        .print-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .no-print {
+                display: none;
+            }
+            
+            .container {
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            .invoice-container {
+                box-shadow: none !important;
+                border: 1px solid #e2e8f0;
+            }
+        }
+        
+        .table-row:nth-child(even) {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="invoice-container bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Header -->
+            <div class="invoice-header text-white p-6 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold">LUMASONIX</h1>
+                    <p class="text-sm opacity-80">專業技術支援 x 人力媒合平台</p>
+                </div>
+                <div class="text-right">
+                    <h2 class="text-xl font-bold">技術人員請款單</h2>
+                    <p class="text-sm opacity-80" id="current-date"></p>
+                </div>
+            </div>
+            
+            <!-- Invoice Content -->
+            <div class="p-6">
+                <!-- Basic Info Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="form-field">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">負責人</label>
+                        <input type="text" value="蘇裕庭" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="form-field">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">請款編號</label>
+                        <input type="text" placeholder="LX-" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="form-field">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">聯絡電話</label>
+                        <input type="tel" value="0926169899" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="form-field">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">請款月份</label>
+                        <input type="month" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="form-field">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">活動統計</label>
+                        <input type="text" placeholder="活動數量或說明" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="form-field">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">廠商名稱</label>
+                        <input type="text" placeholder="請輸入廠商名稱" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Service Items Table -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-3">服務項目明細</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 text-left">
+                                    <th class="px-4 py-3 border-b-2 border-gray-200">日期</th>
+                                    <th class="px-4 py-3 border-b-2 border-gray-200">活動名稱</th>
+                                    <th class="px-4 py-3 border-b-2 border-gray-200">服務內容</th>
+                                    <th class="px-4 py-3 border-b-2 border-gray-200">時數</th>
+                                    <th class="px-4 py-3 border-b-2 border-gray-200">單價</th>
+                                    <th class="px-4 py-3 border-b-2 border-gray-200">金額</th>
+                                </tr>
+                            </thead>
+                            <tbody id="service-items">
+                                <!-- Initial empty row -->
+                                <tr class="table-row border-b border-gray-200">
+                                    <td class="px-4 py-3"><input type="date" class="w-full bg-transparent border-0 focus:outline-none date-input"></td>
+                                    <td class="px-4 py-3"><input type="text" class="w-full bg-transparent border-0 focus:outline-none event-name"></td>
+                                    <td class="px-4 py-3"><input type="text" class="w-full bg-transparent border-0 focus:outline-none service-desc"></td>
+                                    <td class="px-4 py-3"><input type="number" min="0" class="w-full bg-transparent border-0 focus:outline-none hours" oninput="calculateRowTotal(this)"></td>
+                                    <td class="px-4 py-3"><input type="number" min="0" class="w-full bg-transparent border-0 focus:outline-none rate" oninput="calculateRowTotal(this)"></td>
+                                    <td class="px-4 py-3"><span class="amount">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button id="add-row" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors no-print">
+                        + 新增項目
+                    </button>
+                </div>
+                
+                <!-- Summary Section -->
+                <div class="flex justify-end mb-8">
+                    <div class="w-full md:w-1/3">
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <span class="font-medium">小計</span>
+                            <span id="subtotal">0</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-200">
+                            <span class="font-medium">稅額 (5%)</span>
+                            <span id="tax">0</span>
+                        </div>
+                        <div class="flex justify-between py-2 font-bold text-lg">
+                            <span>總計</span>
+                            <span id="total">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notes Section -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold mb-3">備註</h3>
+                    <textarea class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 h-24" placeholder="請輸入備註事項..."></textarea>
+                </div>
+                
+                <!-- Signature Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">請款人簽名</h3>
+                        <div class="border border-gray-300 rounded-md h-32 flex items-center justify-center bg-gray-50" id="signature-pad">
+                            <p class="text-gray-400">點擊此處簽名</p>
+                        </div>
+                        <button id="clear-signature" class="mt-2 px-4 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors text-sm no-print">
+                            清除簽名
+                        </button>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">核准人簽名</h3>
+                        <div class="border border-gray-300 rounded-md h-32"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="bg-gray-50 p-6 text-center text-gray-600 text-sm">
+                <p>LUMASONIX 專業技術支援 x 人力媒合平台</p>
+                <p class="mt-1">© 2023 LUMASONIX. All rights reserved.</p>
+            </div>
+        </div>
+        
+        <!-- Print Button -->
+        <div class="mt-6 text-center no-print">
+            <button onclick="window.print()" class="print-button px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium">
+                列印請款單
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Set current date
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('zh-TW');
+        
+        // Add new row
+        document.getElementById('add-row').addEventListener('click', function() {
+            const newRow = document.createElement('tr');
+            newRow.className = 'table-row border-b border-gray-200';
+            newRow.innerHTML = `
+                <td class="px-4 py-3"><input type="date" class="w-full bg-transparent border-0 focus:outline-none date-input"></td>
+                <td class="px-4 py-3"><input type="text" class="w-full bg-transparent border-0 focus:outline-none event-name"></td>
+                <td class="px-4 py-3"><input type="text" class="w-full bg-transparent border-0 focus:outline-none service-desc"></td>
+                <td class="px-4 py-3"><input type="number" min="0" class="w-full bg-transparent border-0 focus:outline-none hours" oninput="calculateRowTotal(this)"></td>
+                <td class="px-4 py-3"><input type="number" min="0" class="w-full bg-transparent border-0 focus:outline-none rate" oninput="calculateRowTotal(this)"></td>
+                <td class="px-4 py-3"><span class="amount">0</span></td>
+            `;
+            document.getElementById('service-items').appendChild(newRow);
+        });
+        
+        // Calculate row total
+        function calculateRowTotal(input) {
+            const row = input.closest('tr');
+            const hours = parseFloat(row.querySelector('.hours').value) || 0;
+            const rate = parseFloat(row.querySelector('.rate').value) || 0;
+            const amount = hours * rate;
+            row.querySelector('.amount').textContent = amount.toFixed(0);
+            
+            calculateTotals();
+        }
+        
+        // Calculate all totals
+        function calculateTotals() {
+            const amounts = Array.from(document.querySelectorAll('.amount')).map(el => parseFloat(el.textContent) || 0);
+            const subtotal = amounts.reduce((sum, amount) => sum + amount, 0);
+            const tax = subtotal * 0.05;
+            const total = subtotal + tax;
+            
+            document.getElementById('subtotal').textContent = subtotal.toFixed(0);
+            document.getElementById('tax').textContent = tax.toFixed(0);
+            document.getElementById('total').textContent = total.toFixed(0);
+        }
+        
+        // Simple signature pad
+        let isDrawing = false;
+        let signaturePad = document.getElementById('signature-pad');
+        let ctx;
+        
+        function initSignaturePad() {
+            // Replace the placeholder with canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = signaturePad.offsetWidth;
+            canvas.height = signaturePad.offsetHeight;
+            canvas.style.display = 'block';
+            signaturePad.innerHTML = '';
+            signaturePad.appendChild(canvas);
+            
+            ctx = canvas.getContext('2d');
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000';
+            
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch events
+            canvas.addEventListener('touchstart', startDrawingTouch);
+            canvas.addEventListener('touchmove', drawTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+        
+        function startDrawing(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - signaturePad.getBoundingClientRect().left, 
+                       e.clientY - signaturePad.getBoundingClientRect().top);
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            ctx.lineTo(e.clientX - signaturePad.getBoundingClientRect().left, 
+                      e.clientY - signaturePad.getBoundingClientRect().top);
+            ctx.stroke();
+        }
+        
+        function startDrawingTouch(e) {
+            e.preventDefault();
+            isDrawing = true;
+            const touch = e.touches[0];
+            ctx.beginPath();
+            ctx.moveTo(touch.clientX - signaturePad.getBoundingClientRect().left, 
+                      touch.clientY - signaturePad.getBoundingClientRect().top);
+        }
+        
+        function drawTouch(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const touch = e.touches[0];
+            ctx.lineTo(touch.clientX - signaturePad.getBoundingClientRect().left, 
+                      touch.clientY - signaturePad.getBoundingClientRect().top);
+            ctx.stroke();
+        }
+        
+        function stopDrawing() {
+            isDrawing = false;
+        }
+        
+        // Clear signature
+        document.getElementById('clear-signature').addEventListener('click', function() {
+            if (ctx) {
+                ctx.clearRect(0, 0, signaturePad.firstChild.width, signaturePad.firstChild.height);
+            }
+        });
+        
+        // Initialize signature pad after page loads
+        window.addEventListener('load', initSignaturePad);
+        
+        // Reinitialize signature pad when window resizes
+        window.addEventListener('resize', function() {
+            if (ctx) {
+                const imgData = ctx.getImageData(0, 0, signaturePad.firstChild.width, signaturePad.firstChild.height);
+                initSignaturePad();
+                ctx.putImageData(imgData, 0, 0);
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93fb013b238bc91e',t:'MTc0NzIzMjA5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
