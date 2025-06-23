@@ -3,530 +3,822 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中盤商雞肉銷售管理系統</title>
+    <title>雞肉批發管理系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f7f8fc;
+            background-color: #f7f3eb;
         }
-        
-        .print-only {
+        .tab-content {
             display: none;
         }
-        
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            
-            .print-only {
-                display: block;
-            }
-            
-            body {
-                background-color: white;
-            }
-            
-            .print-container {
-                padding: 20px;
-                max-width: 100% !important;
-                margin: 0 !important;
-            }
+        .tab-content.active {
+            display: block;
+        }
+        .price-hidden {
+            filter: blur(5px);
+        }
+        .price-hidden:hover {
+            filter: none;
+        }
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
-        <header class="bg-amber-700 text-white shadow-lg no-print">
-            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-                <h1 class="text-2xl font-bold">雞肉銷售管理系統</h1>
-                <div class="flex space-x-4">
-                    <button id="newOrderBtn" class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-lg font-medium transition">新增訂單</button>
-                    <button id="orderListBtn" class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-lg font-medium transition">訂單列表</button>
+    <div class="min-h-screen flex flex-col">
+        <!-- 頂部導航 -->
+        <nav class="bg-amber-700 text-white shadow-lg">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                    </svg>
+                    <h1 class="text-xl font-bold">優質雞肉批發中心</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="menu-btn" class="px-3 py-1 rounded hover:bg-amber-600 transition">產品菜單</button>
+                    <button id="order-btn" class="px-3 py-1 rounded hover:bg-amber-600 transition">訂購表單</button>
+                    <button id="login-btn" class="px-3 py-1 bg-amber-600 rounded hover:bg-amber-500 transition">管理登入</button>
                 </div>
             </div>
-        </header>
+        </nav>
 
-        <main class="container mx-auto px-4 py-8">
-            <!-- 訂單表單 -->
-            <div id="orderForm" class="bg-white rounded-xl shadow-md p-6 mb-8 print-container">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold text-amber-800">銷售訂單</h2>
-                    <div class="no-print">
-                        <button id="printBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-medium transition">列印訂單</button>
-                    </div>
-                </div>
-
-                <div class="print-only text-center mb-6">
-                    <h1 class="text-2xl font-bold">優質雞肉批發中心</h1>
-                    <p>地址：台灣省某市某區某路123號</p>
-                    <p>電話：04-12345678</p>
-                    <h2 class="text-xl font-bold mt-4">銷售單</h2>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">訂單編號</label>
-                        <input type="text" id="orderNumber" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" readonly>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">日期</label>
-                        <input type="date" id="orderDate" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">客戶名稱</label>
-                        <input type="text" id="customerName" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="請輸入客戶名稱">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">聯絡電話</label>
-                        <input type="text" id="customerPhone" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="請輸入聯絡電話">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-gray-700 font-medium mb-2">送貨地址</label>
-                        <input type="text" id="deliveryAddress" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="請輸入送貨地址">
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-amber-800 mb-3">商品明細</h3>
+        <!-- 主要內容區 -->
+        <div class="container mx-auto px-4 py-6 flex-grow">
+            <!-- 產品菜單 -->
+            <div id="menu-tab" class="tab-content active">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-2xl font-bold text-amber-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        產品菜單
+                    </h2>
+                    <p class="text-gray-600 mb-6">我們提供優質整隻雞，不分切，品質保證。所有價格均為批發價，歡迎洽詢。</p>
+                    
                     <div class="overflow-x-auto">
                         <table class="w-full border-collapse">
                             <thead>
                                 <tr class="bg-amber-100">
-                                    <th class="border border-amber-200 px-4 py-2 text-left">商品名稱</th>
-                                    <th class="border border-amber-200 px-4 py-2 text-left">單價 (元/斤)</th>
-                                    <th class="border border-amber-200 px-4 py-2 text-left">數量 (斤)</th>
-                                    <th class="border border-amber-200 px-4 py-2 text-left">小計 (元)</th>
-                                    <th class="border border-amber-200 px-4 py-2 text-left no-print">操作</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">產品類型</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">規格</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">特色</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">售價 (元/隻)</th>
                                 </tr>
                             </thead>
-                            <tbody id="orderItems">
-                                <!-- 商品列表將在這裡動態生成 -->
+                            <tbody>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.0-2.2kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">放養飼養，肉質結實，風味佳</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.3-2.5kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">放養飼養，肉質結實，風味佳</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">仿土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">半放養，肉質鮮嫩，性價比高</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">仿土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.1-2.3kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">半放養，肉質鮮嫩，性價比高</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">冷凍雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.5-1.7kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">速凍保鮮，方便存放，適合大量採購</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">冷凍雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">速凍保鮮，方便存放，適合大量採購</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">生鮮雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">當日宰殺，新鮮直送</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">熟雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">特製醬料醃製，真空包裝</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-                    <button id="addItemBtn" class="mt-3 bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded-lg font-medium transition no-print">新增商品</button>
+                    
+                    <div class="mt-6 bg-amber-50 p-4 rounded-lg border border-amber-200">
+                        <h3 class="font-bold text-amber-800 mb-2">批發優惠政策：</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                            <li>單次訂購 10-30 隻：享有 95 折優惠</li>
+                            <li>單次訂購 31-50 隻：享有 9 折優惠</li>
+                            <li>單次訂購 51 隻以上：享有 85 折優惠</li>
+                            <li>長期合作客戶可享有更多專屬優惠，請聯繫業務人員</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 訂購表單 -->
+            <div id="order-tab" class="tab-content">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold text-amber-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        訂購表單
+                    </h2>
+                    <p class="text-gray-600 mb-6">請填寫以下表單進行訂購，我們將盡快與您聯繫確認訂單詳情。</p>
+                    
+                    <form id="order-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="company">公司名稱</label>
+                                <input type="text" id="company" name="company" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="contact">聯絡人</label>
+                                <input type="text" id="contact" name="contact" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="phone">聯絡電話</label>
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="email">電子郵件</label>
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-gray-700 font-medium mb-2" for="address">送貨地址</label>
+                                <input type="text" id="address" name="address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="delivery-date">希望送達日期</label>
+                                <input type="date" id="delivery-date" name="delivery-date" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="delivery-time">希望送達時間</label>
+                                <select id="delivery-time" name="delivery-time" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                                    <option value="">請選擇時間</option>
+                                    <option value="morning">上午 (9:00-12:00)</option>
+                                    <option value="afternoon">下午 (13:00-17:00)</option>
+                                    <option value="evening">晚上 (18:00-20:00)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">訂購產品</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full border-collapse mb-4">
+                                    <thead>
+                                        <tr class="bg-amber-100">
+                                            <th class="border border-amber-300 px-4 py-2 text-left">產品類型</th>
+                                            <th class="border border-amber-300 px-4 py-2 text-left">規格</th>
+                                            <th class="border border-amber-300 px-4 py-2 text-left">數量 (隻)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="order-items">
+                                        <tr class="hover:bg-amber-50">
+                                            <td class="border border-amber-200 px-4 py-3">
+                                                <select class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-type">
+                                                    <option value="">選擇類型</option>
+                                                    <option value="土雞">土雞</option>
+                                                    <option value="仿土雞">仿土雞</option>
+                                                    <option value="冷凍雞">冷凍雞</option>
+                                                    <option value="生鮮雞">生鮮雞</option>
+                                                    <option value="熟雞">熟雞</option>
+                                                </select>
+                                            </td>
+                                            <td class="border border-amber-200 px-4 py-3">
+                                                <select class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-spec">
+                                                    <option value="">選擇規格</option>
+                                                    <option value="1.5-1.7kg/隻">1.5-1.7kg/隻</option>
+                                                    <option value="1.8-2.0kg/隻">1.8-2.0kg/隻</option>
+                                                    <option value="2.0-2.2kg/隻">2.0-2.2kg/隻</option>
+                                                    <option value="2.1-2.3kg/隻">2.1-2.3kg/隻</option>
+                                                    <option value="2.3-2.5kg/隻">2.3-2.5kg/隻</option>
+                                                </select>
+                                            </td>
+                                            <td class="border border-amber-200 px-4 py-3">
+                                                <input type="number" min="1" class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-quantity" placeholder="數量">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button type="button" id="add-item" class="text-amber-600 hover:text-amber-800 flex items-center text-sm mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    新增產品項目
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2" for="notes">備註</label>
+                            <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-6 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                                提交訂單
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 管理後台 -->
+            <div id="admin-tab" class="tab-content">
+                <!-- 成本與售價表 -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-amber-800 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            成本與售價表 (內部參考)
+                        </h2>
+                        <div class="text-sm text-gray-500">更新日期: 2023/06/15</div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-amber-100">
+                                    <th class="border border-amber-300 px-4 py-2 text-left">產品類型</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">規格</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">成本價 (元/隻)</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">建議售價 (元/隻)</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">毛利率</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.0-2.2kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">320</td>
+                                    <td class="border border-amber-200 px-4 py-3">380</td>
+                                    <td class="border border-amber-200 px-4 py-3">15.8%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.3-2.5kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">350</td>
+                                    <td class="border border-amber-200 px-4 py-3">420</td>
+                                    <td class="border border-amber-200 px-4 py-3">16.7%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">仿土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">240</td>
+                                    <td class="border border-amber-200 px-4 py-3">290</td>
+                                    <td class="border border-amber-200 px-4 py-3">17.2%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">仿土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.1-2.3kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">260</td>
+                                    <td class="border border-amber-200 px-4 py-3">310</td>
+                                    <td class="border border-amber-200 px-4 py-3">16.1%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">冷凍雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.5-1.7kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">180</td>
+                                    <td class="border border-amber-200 px-4 py-3">220</td>
+                                    <td class="border border-amber-200 px-4 py-3">18.2%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">冷凍雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">200</td>
+                                    <td class="border border-amber-200 px-4 py-3">240</td>
+                                    <td class="border border-amber-200 px-4 py-3">16.7%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">生鮮雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">220</td>
+                                    <td class="border border-amber-200 px-4 py-3">270</td>
+                                    <td class="border border-amber-200 px-4 py-3">18.5%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">熟雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">280</td>
+                                    <td class="border border-amber-200 px-4 py-3">350</td>
+                                    <td class="border border-amber-200 px-4 py-3">20.0%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-end">
+                <!-- 訂單管理 -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold text-amber-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        訂單管理
+                    </h2>
+                    
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-gray-700 text-sm font-medium mb-1" for="filter-status">訂單狀態</label>
+                            <select id="filter-status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <option value="all">全部</option>
+                                <option value="pending">待處理</option>
+                                <option value="confirmed">已確認</option>
+                                <option value="shipped">已出貨</option>
+                                <option value="completed">已完成</option>
+                                <option value="cancelled">已取消</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-gray-700 text-sm font-medium mb-1" for="filter-date">日期範圍</label>
+                            <select id="filter-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <option value="all">全部</option>
+                                <option value="today">今天</option>
+                                <option value="yesterday">昨天</option>
+                                <option value="week">本週</option>
+                                <option value="month">本月</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-gray-700 text-sm font-medium mb-1" for="search-order">搜尋</label>
+                            <input type="text" id="search-order" placeholder="訂單號碼/客戶名稱" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-amber-100">
+                                    <th class="border border-amber-300 px-4 py-2 text-left">訂單編號</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">客戶名稱</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">訂購日期</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">送貨日期</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">訂單金額</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">狀態</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-list">
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3">ORD-20230615-001</td>
+                                    <td class="border border-amber-200 px-4 py-3">好味餐廳</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/15</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/17</td>
+                                    <td class="border border-amber-200 px-4 py-3">$7,600</td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">待處理</span>
+                                    </td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <button class="text-amber-600 hover:text-amber-800 mr-2 view-order" data-id="ORD-20230615-001">查看</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3">ORD-20230614-003</td>
+                                    <td class="border border-amber-200 px-4 py-3">鮮味食品</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/14</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/16</td>
+                                    <td class="border border-amber-200 px-4 py-3">$12,400</td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">已確認</span>
+                                    </td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <button class="text-amber-600 hover:text-amber-800 mr-2 view-order" data-id="ORD-20230614-003">查看</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3">ORD-20230614-002</td>
+                                    <td class="border border-amber-200 px-4 py-3">大眾超市</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/14</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/15</td>
+                                    <td class="border border-amber-200 px-4 py-3">$5,800</td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">已出貨</span>
+                                    </td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <button class="text-amber-600 hover:text-amber-800 mr-2 view-order" data-id="ORD-20230614-002">查看</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3">ORD-20230613-001</td>
+                                    <td class="border border-amber-200 px-4 py-3">金龍餐飲</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/13</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/14</td>
+                                    <td class="border border-amber-200 px-4 py-3">$9,200</td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">已完成</span>
+                                    </td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <button class="text-amber-600 hover:text-amber-800 mr-2 view-order" data-id="ORD-20230613-001">查看</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-between items-center">
+                        <div class="text-sm text-gray-600">顯示 1 至 4 筆，共 4 筆</div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>上一頁</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-amber-50 text-amber-800 font-medium">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>下一頁</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 頁腳 -->
+        <footer class="bg-amber-800 text-white py-6 mt-8">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="mb-4 md:mb-0">
-                        <label class="block text-gray-700 font-medium mb-2">備註</label>
-                        <textarea id="orderNotes" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" rows="3" placeholder="請輸入備註事項"></textarea>
+                        <h3 class="text-xl font-bold mb-2">優質雞肉批發中心</h3>
+                        <p class="text-amber-200">提供最優質的雞肉，滿足您的批發需求</p>
                     </div>
-                    <div class="bg-amber-50 p-4 rounded-lg">
-                        <div class="flex justify-between mb-2">
-                            <span class="font-medium">小計：</span>
-                            <span id="subtotal">0</span>
+                    <div class="flex flex-col items-center md:items-end">
+                        <div class="flex items-center mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span>業務專線：(02) 2345-6789</span>
                         </div>
-                        <div class="flex justify-between mb-2">
-                            <span class="font-medium">稅額 (5%)：</span>
-                            <span id="tax">0</span>
-                        </div>
-                        <div class="flex justify-between text-lg font-bold text-amber-800">
-                            <span>總計：</span>
-                            <span id="total">0</span>
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span>電子郵件：service@chickenwholesale.com</span>
                         </div>
                     </div>
                 </div>
-
-                <div class="mt-8 flex justify-between print-only">
-                    <div>
-                        <p>客戶簽名：_____________________</p>
-                    </div>
-                    <div>
-                        <p>經手人：_____________________</p>
-                    </div>
+                <div class="border-t border-amber-700 mt-6 pt-4 text-center text-sm text-amber-300">
+                    © 2023 優質雞肉批發中心. 版權所有.
                 </div>
-
-                <div class="mt-8 text-center no-print">
-                    <button id="saveOrderBtn" class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-medium transition mr-4">儲存訂單</button>
-                    <button id="resetFormBtn" class="bg-gray-600 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-medium transition">重置表單</button>
-                </div>
-            </div>
-
-            <!-- 訂單列表 -->
-            <div id="orderList" class="bg-white rounded-xl shadow-md p-6 hidden no-print">
-                <h2 class="text-xl font-bold text-amber-800 mb-6">訂單列表</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full border-collapse">
-                        <thead>
-                            <tr class="bg-amber-100">
-                                <th class="border border-amber-200 px-4 py-2 text-left">訂單編號</th>
-                                <th class="border border-amber-200 px-4 py-2 text-left">日期</th>
-                                <th class="border border-amber-200 px-4 py-2 text-left">客戶名稱</th>
-                                <th class="border border-amber-200 px-4 py-2 text-left">總金額</th>
-                                <th class="border border-amber-200 px-4 py-2 text-left">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orderListItems">
-                            <!-- 訂單列表將在這裡動態生成 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-
-        <footer class="bg-amber-800 text-white py-4 mt-8 no-print">
-            <div class="container mx-auto px-4 text-center">
-                <p>© 2023 雞肉銷售管理系統 | 版權所有</p>
             </div>
         </footer>
     </div>
 
-    <!-- 商品選擇模態框 -->
-    <div id="itemModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden no-print">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md">
-            <h3 class="text-lg font-bold text-amber-800 mb-4">新增商品</h3>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-medium mb-2">商品名稱</label>
-                <select id="itemName" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    <option value="">請選擇商品</option>
-                    <option value="仿土雞">仿土雞</option>
-                    <option value="熟雞肉">熟雞肉</option>
-                    <option value="雞胸肉">雞胸肉</option>
-                    <option value="雞腿肉">雞腿肉</option>
-                    <option value="雞翅">雞翅</option>
-                    <option value="雞爪">雞爪</option>
-                    <option value="雞心">雞心</option>
-                    <option value="雞肝">雞肝</option>
-                    <option value="客製商品">客製商品</option>
-                </select>
-                <input id="customItemName" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 mt-2 hidden" placeholder="請輸入商品名稱">
+    <!-- 登入彈窗 -->
+    <div id="login-modal" class="login-overlay hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">管理員登入</h3>
+                <button id="close-login" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-medium mb-2">單價 (元/斤)</label>
-                <input type="number" id="itemPrice" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" min="0" step="0.1">
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" for="username">帳號</label>
+                    <input type="text" id="username" name="username" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" for="password">密碼</label>
+                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                        登入
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 訂單詳情彈窗 -->
+    <div id="order-detail-modal" class="login-overlay hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">訂單詳情 <span id="detail-order-id" class="text-amber-600">ORD-20230615-001</span></h3>
+                <button id="close-detail" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">客戶資訊</h4>
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <p><span class="font-medium">公司名稱：</span> <span id="detail-company">好味餐廳</span></p>
+                        <p><span class="font-medium">聯絡人：</span> <span id="detail-contact">張經理</span></p>
+                        <p><span class="font-medium">聯絡電話：</span> <span id="detail-phone">0912-345-678</span></p>
+                        <p><span class="font-medium">電子郵件：</span> <span id="detail-email">zhang@goodtaste.com</span></p>
+                        <p><span class="font-medium">送貨地址：</span> <span id="detail-address">台北市中山區中山北路123號</span></p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">訂單資訊</h4>
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <p><span class="font-medium">訂單編號：</span> <span id="detail-order-number">ORD-20230615-001</span></p>
+                        <p><span class="font-medium">訂購日期：</span> <span id="detail-order-date">2023/06/15</span></p>
+                        <p><span class="font-medium">送貨日期：</span> <span id="detail-delivery-date">2023/06/17</span></p>
+                        <p><span class="font-medium">送貨時間：</span> <span id="detail-delivery-time">上午 (9:00-12:00)</span></p>
+                        <p><span class="font-medium">訂單狀態：</span> 
+                            <select id="detail-status" class="px-2 py-1 border border-gray-300 rounded-md text-sm">
+                                <option value="pending">待處理</option>
+                                <option value="confirmed">已確認</option>
+                                <option value="shipped">已出貨</option>
+                                <option value="completed">已完成</option>
+                                <option value="cancelled">已取消</option>
+                            </select>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <h4 class="font-medium text-gray-700 mb-2">訂購產品</h4>
+            <div class="overflow-x-auto mb-6">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-amber-100">
+                            <th class="border border-amber-300 px-4 py-2 text-left">產品類型</th>
+                            <th class="border border-amber-300 px-4 py-2 text-left">規格</th>
+                            <th class="border border-amber-300 px-4 py-2 text-left">數量 (隻)</th>
+                            <th class="border border-amber-300 px-4 py-2 text-left">單價 (元/隻)</th>
+                            <th class="border border-amber-300 px-4 py-2 text-left">小計 (元)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3">土雞</td>
+                            <td class="border border-amber-200 px-4 py-3">2.0-2.2kg/隻</td>
+                            <td class="border border-amber-200 px-4 py-3">10</td>
+                            <td class="border border-amber-200 px-4 py-3">380</td>
+                            <td class="border border-amber-200 px-4 py-3">3,800</td>
+                        </tr>
+                        <tr class="hover:bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3">仿土雞</td>
+                            <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                            <td class="border border-amber-200 px-4 py-3">10</td>
+                            <td class="border border-amber-200 px-4 py-3">290</td>
+                            <td class="border border-amber-200 px-4 py-3">2,900</td>
+                        </tr>
+                        <tr class="hover:bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3">熟雞</td>
+                            <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                            <td class="border border-amber-200 px-4 py-3">2</td>
+                            <td class="border border-amber-200 px-4 py-3">350</td>
+                            <td class="border border-amber-200 px-4 py-3">700</td>
+                        </tr>
+                        <tr class="hover:bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3 font-medium text-right" colspan="4">折扣 (95折):</td>
+                            <td class="border border-amber-200 px-4 py-3">-370</td>
+                        </tr>
+                        <tr class="hover:bg-amber-50 bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3 font-bold text-right" colspan="4">總計:</td>
+                            <td class="border border-amber-200 px-4 py-3 font-bold">7,030</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
             <div class="mb-6">
-                <label class="block text-gray-700 font-medium mb-2">數量 (斤)</label>
-                <input type="number" id="itemQuantity" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" min="0" step="0.1">
+                <h4 class="font-medium text-gray-700 mb-2">備註</h4>
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <p id="detail-notes">請於送貨前一小時聯繫，謝謝。</p>
+                </div>
             </div>
-            <div class="flex justify-end">
-                <button id="cancelItemBtn" class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg font-medium transition mr-2">取消</button>
-                <button id="confirmItemBtn" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg font-medium transition">確認</button>
+            
+            <div class="flex justify-between">
+                <div>
+                    <button id="print-order" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        列印訂單
+                    </button>
+                </div>
+                <div class="space-x-2">
+                    <button id="save-order" class="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                        儲存變更
+                    </button>
+                    <button id="close-detail-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                        關閉
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- 訂單提交成功彈窗 -->
+    <div id="success-modal" class="login-overlay hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-center">
+            <div class="mb-4 flex justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">訂單提交成功！</h3>
+            <p class="text-gray-600 mb-6">感謝您的訂購，我們將盡快處理您的訂單。</p>
+            <p class="text-gray-600 mb-6">訂單編號：<span id="success-order-id" class="font-medium text-amber-600">ORD-20230616-001</span></p>
+            <button id="close-success" class="px-6 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                確定
+            </button>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 初始化變數
-            let orders = JSON.parse(localStorage.getItem('chickenOrders')) || [];
-            let currentItems = [];
-            let editingItemIndex = -1;
+            // 頁籤切換
+            const menuBtn = document.getElementById('menu-btn');
+            const orderBtn = document.getElementById('order-btn');
+            const loginBtn = document.getElementById('login-btn');
+            const menuTab = document.getElementById('menu-tab');
+            const orderTab = document.getElementById('order-tab');
+            const adminTab = document.getElementById('admin-tab');
             
-            // 生成訂單編號
-            function generateOrderNumber() {
-                const date = new Date();
-                const year = date.getFullYear().toString().substr(-2);
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const day = date.getDate().toString().padStart(2, '0');
+            menuBtn.addEventListener('click', function() {
+                menuTab.classList.add('active');
+                orderTab.classList.remove('active');
+                adminTab.classList.remove('active');
+                menuBtn.classList.add('bg-amber-600');
+                orderBtn.classList.remove('bg-amber-600');
+                loginBtn.classList.remove('bg-amber-600');
+            });
+            
+            orderBtn.addEventListener('click', function() {
+                menuTab.classList.remove('active');
+                orderTab.classList.add('active');
+                adminTab.classList.remove('active');
+                menuBtn.classList.remove('bg-amber-600');
+                orderBtn.classList.add('bg-amber-600');
+                loginBtn.classList.remove('bg-amber-600');
+            });
+            
+            // 登入彈窗
+            const loginModal = document.getElementById('login-modal');
+            const closeLogin = document.getElementById('close-login');
+            
+            loginBtn.addEventListener('click', function() {
+                loginModal.classList.remove('hidden');
+            });
+            
+            closeLogin.addEventListener('click', function() {
+                loginModal.classList.add('hidden');
+            });
+            
+            // 登入表單提交
+            const loginForm = document.getElementById('login-form');
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // 簡單的驗證，實際應用中應使用更安全的方式
+                if (username === 'admin' && password === 'admin123') {
+                    loginModal.classList.add('hidden');
+                    menuTab.classList.remove('active');
+                    orderTab.classList.remove('active');
+                    adminTab.classList.add('active');
+                    menuBtn.classList.remove('bg-amber-600');
+                    orderBtn.classList.remove('bg-amber-600');
+                    loginBtn.classList.add('bg-amber-600');
+                } else {
+                    alert('帳號或密碼錯誤！');
+                }
+            });
+            
+            // 新增產品項目
+            const addItemBtn = document.getElementById('add-item');
+            const orderItems = document.getElementById('order-items');
+            
+            addItemBtn.addEventListener('click', function() {
+                const newRow = document.createElement('tr');
+                newRow.className = 'hover:bg-amber-50';
+                newRow.innerHTML = `
+                    <td class="border border-amber-200 px-4 py-3">
+                        <select class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-type">
+                            <option value="">選擇類型</option>
+                            <option value="土雞">土雞</option>
+                            <option value="仿土雞">仿土雞</option>
+                            <option value="冷凍雞">冷凍雞</option>
+                            <option value="生鮮雞">生鮮雞</option>
+                            <option value="熟雞">熟雞</option>
+                        </select>
+                    </td>
+                    <td class="border border-amber-200 px-4 py-3">
+                        <select class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-spec">
+                            <option value="">選擇規格</option>
+                            <option value="1.5-1.7kg/隻">1.5-1.7kg/隻</option>
+                            <option value="1.8-2.0kg/隻">1.8-2.0kg/隻</option>
+                            <option value="2.0-2.2kg/隻">2.0-2.2kg/隻</option>
+                            <option value="2.1-2.3kg/隻">2.1-2.3kg/隻</option>
+                            <option value="2.3-2.5kg/隻">2.3-2.5kg/隻</option>
+                        </select>
+                    </td>
+                    <td class="border border-amber-200 px-4 py-3">
+                        <input type="number" min="1" class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-quantity" placeholder="數量">
+                    </td>
+                `;
+                orderItems.appendChild(newRow);
+            });
+            
+            // 訂單表單提交
+            const orderForm = document.getElementById('order-form');
+            const successModal = document.getElementById('success-modal');
+            const closeSuccess = document.getElementById('close-success');
+            const successOrderId = document.getElementById('success-order-id');
+            
+            orderForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 生成訂單編號
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
                 const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-                return `OR${year}${month}${day}${random}`;
-            }
+                const orderId = `ORD-${year}${month}${day}-${random}`;
+                
+                successOrderId.textContent = orderId;
+                successModal.classList.remove('hidden');
+                
+                // 清空表單
+                orderForm.reset();
+                while (orderItems.children.length > 1) {
+                    orderItems.removeChild(orderItems.lastChild);
+                }
+            });
             
-            // 設置今天日期
-            document.getElementById('orderDate').valueAsDate = new Date();
-            document.getElementById('orderNumber').value = generateOrderNumber();
+            closeSuccess.addEventListener('click', function() {
+                successModal.classList.add('hidden');
+            });
             
-            // 計算總金額
-            function calculateTotal() {
-                let subtotal = 0;
-                currentItems.forEach(item => {
-                    subtotal += item.price * item.quantity;
+            // 訂單詳情彈窗
+            const orderDetailModal = document.getElementById('order-detail-modal');
+            const closeDetail = document.getElementById('close-detail');
+            const closeDetailBtn = document.getElementById('close-detail-btn');
+            const viewOrderBtns = document.querySelectorAll('.view-order');
+            
+            viewOrderBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-id');
+                    document.getElementById('detail-order-id').textContent = orderId;
+                    document.getElementById('detail-order-number').textContent = orderId;
+                    orderDetailModal.classList.remove('hidden');
                 });
-                
-                const tax = Math.round(subtotal * 0.05);
-                const total = subtotal + tax;
-                
-                document.getElementById('subtotal').textContent = subtotal.toLocaleString() + ' 元';
-                document.getElementById('tax').textContent = tax.toLocaleString() + ' 元';
-                document.getElementById('total').textContent = total.toLocaleString() + ' 元';
-                
-                return { subtotal, tax, total };
-            }
-            
-            // 渲染商品列表
-            function renderItems() {
-                const tbody = document.getElementById('orderItems');
-                tbody.innerHTML = '';
-                
-                if (currentItems.length === 0) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td colspan="5" class="border border-amber-200 px-4 py-2 text-center text-gray-500">尚未新增商品</td>`;
-                    tbody.appendChild(tr);
-                } else {
-                    currentItems.forEach((item, index) => {
-                        const tr = document.createElement('tr');
-                        const subtotal = item.price * item.quantity;
-                        
-                        tr.innerHTML = `
-                            <td class="border border-amber-200 px-4 py-2">${item.name}</td>
-                            <td class="border border-amber-200 px-4 py-2">${item.price}</td>
-                            <td class="border border-amber-200 px-4 py-2">${item.quantity}</td>
-                            <td class="border border-amber-200 px-4 py-2">${subtotal.toLocaleString()} 元</td>
-                            <td class="border border-amber-200 px-4 py-2 no-print">
-                                <button class="edit-item bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded text-sm mr-1" data-index="${index}">編輯</button>
-                                <button class="delete-item bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-sm" data-index="${index}">刪除</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-                
-                calculateTotal();
-            }
-            
-            // 渲染訂單列表
-            function renderOrderList() {
-                const tbody = document.getElementById('orderListItems');
-                tbody.innerHTML = '';
-                
-                if (orders.length === 0) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td colspan="5" class="border border-amber-200 px-4 py-2 text-center text-gray-500">尚無訂單記錄</td>`;
-                    tbody.appendChild(tr);
-                } else {
-                    orders.forEach((order, index) => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td class="border border-amber-200 px-4 py-2">${order.orderNumber}</td>
-                            <td class="border border-amber-200 px-4 py-2">${order.orderDate}</td>
-                            <td class="border border-amber-200 px-4 py-2">${order.customerName}</td>
-                            <td class="border border-amber-200 px-4 py-2">${order.total.toLocaleString()} 元</td>
-                            <td class="border border-amber-200 px-4 py-2">
-                                <button class="view-order bg-amber-600 hover:bg-amber-500 text-white px-2 py-1 rounded text-sm mr-1" data-index="${index}">查看</button>
-                                <button class="delete-order bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-sm" data-index="${index}">刪除</button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-            }
-            
-            // 初始化頁面
-            renderItems();
-            
-            // 新增商品按鈕
-            document.getElementById('addItemBtn').addEventListener('click', function() {
-                document.getElementById('itemModal').classList.remove('hidden');
-                document.getElementById('itemName').value = '';
-                document.getElementById('customItemName').value = '';
-                document.getElementById('customItemName').classList.add('hidden');
-                document.getElementById('itemPrice').value = '';
-                document.getElementById('itemQuantity').value = '';
-                editingItemIndex = -1;
             });
             
-            // 商品選擇變更
-            document.getElementById('itemName').addEventListener('change', function() {
-                const customField = document.getElementById('customItemName');
-                if (this.value === '客製商品') {
-                    customField.classList.remove('hidden');
-                } else {
-                    customField.classList.add('hidden');
-                }
+            closeDetail.addEventListener('click', function() {
+                orderDetailModal.classList.add('hidden');
             });
             
-            // 取消新增商品
-            document.getElementById('cancelItemBtn').addEventListener('click', function() {
-                document.getElementById('itemModal').classList.add('hidden');
+            closeDetailBtn.addEventListener('click', function() {
+                orderDetailModal.classList.add('hidden');
             });
             
-            // 確認新增商品
-            document.getElementById('confirmItemBtn').addEventListener('click', function() {
-                const selectElement = document.getElementById('itemName');
-                let itemName = selectElement.value;
-                
-                if (itemName === '客製商品') {
-                    itemName = document.getElementById('customItemName').value;
-                }
-                
-                const itemPrice = parseFloat(document.getElementById('itemPrice').value);
-                const itemQuantity = parseFloat(document.getElementById('itemQuantity').value);
-                
-                if (!itemName || isNaN(itemPrice) || isNaN(itemQuantity)) {
-                    alert('請填寫完整的商品資訊');
-                    return;
-                }
-                
-                const item = {
-                    name: itemName,
-                    price: itemPrice,
-                    quantity: itemQuantity
-                };
-                
-                if (editingItemIndex >= 0) {
-                    currentItems[editingItemIndex] = item;
-                } else {
-                    currentItems.push(item);
-                }
-                
-                document.getElementById('itemModal').classList.add('hidden');
-                renderItems();
-            });
+            // 儲存訂單變更
+            const saveOrderBtn = document.getElementById('save-order');
             
-            // 編輯和刪除商品
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('edit-item')) {
-                    const index = parseInt(e.target.dataset.index);
-                    const item = currentItems[index];
-                    
-                    document.getElementById('itemModal').classList.remove('hidden');
-                    
-                    const selectElement = document.getElementById('itemName');
-                    const customField = document.getElementById('customItemName');
-                    
-                    // 檢查是否為預設選項
-                    let isDefaultOption = false;
-                    for (let i = 0; i < selectElement.options.length; i++) {
-                        if (selectElement.options[i].value === item.name) {
-                            selectElement.value = item.name;
-                            customField.classList.add('hidden');
-                            isDefaultOption = true;
-                            break;
-                        }
-                    }
-                    
-                    if (!isDefaultOption) {
-                        selectElement.value = '客製商品';
-                        customField.value = item.name;
-                        customField.classList.remove('hidden');
-                    }
-                    
-                    document.getElementById('itemPrice').value = item.price;
-                    document.getElementById('itemQuantity').value = item.quantity;
-                    editingItemIndex = index;
-                }
-                
-                if (e.target.classList.contains('delete-item')) {
-                    const index = parseInt(e.target.dataset.index);
-                    if (confirm('確定要刪除此商品嗎？')) {
-                        currentItems.splice(index, 1);
-                        renderItems();
-                    }
-                }
-                
-                if (e.target.classList.contains('view-order')) {
-                    const index = parseInt(e.target.dataset.index);
-                    loadOrder(index);
-                    showOrderForm();
-                }
-                
-                if (e.target.classList.contains('delete-order')) {
-                    const index = parseInt(e.target.dataset.index);
-                    if (confirm('確定要刪除此訂單嗎？')) {
-                        orders.splice(index, 1);
-                        localStorage.setItem('chickenOrders', JSON.stringify(orders));
-                        renderOrderList();
-                    }
-                }
+            saveOrderBtn.addEventListener('click', function() {
+                alert('訂單變更已儲存！');
+                orderDetailModal.classList.add('hidden');
             });
-            
-            // 儲存訂單
-            document.getElementById('saveOrderBtn').addEventListener('click', function() {
-                const orderNumber = document.getElementById('orderNumber').value;
-                const orderDate = document.getElementById('orderDate').value;
-                const customerName = document.getElementById('customerName').value;
-                const customerPhone = document.getElementById('customerPhone').value;
-                const deliveryAddress = document.getElementById('deliveryAddress').value;
-                const orderNotes = document.getElementById('orderNotes').value;
-                
-                if (!customerName) {
-                    alert('請填寫客戶名稱');
-                    return;
-                }
-                
-                if (currentItems.length === 0) {
-                    alert('請至少新增一項商品');
-                    return;
-                }
-                
-                const { subtotal, tax, total } = calculateTotal();
-                
-                const order = {
-                    orderNumber,
-                    orderDate,
-                    customerName,
-                    customerPhone,
-                    deliveryAddress,
-                    items: [...currentItems],
-                    notes: orderNotes,
-                    subtotal,
-                    tax,
-                    total,
-                    createdAt: new Date().toISOString()
-                };
-                
-                // 檢查是否為編輯現有訂單
-                const existingIndex = orders.findIndex(o => o.orderNumber === orderNumber);
-                if (existingIndex >= 0) {
-                    orders[existingIndex] = order;
-                } else {
-                    orders.push(order);
-                }
-                
-                localStorage.setItem('chickenOrders', JSON.stringify(orders));
-                alert('訂單已儲存');
-                
-                resetForm();
-            });
-            
-            // 重置表單
-            document.getElementById('resetFormBtn').addEventListener('click', function() {
-                if (confirm('確定要重置表單嗎？所有未儲存的資料將會遺失。')) {
-                    resetForm();
-                }
-            });
-            
-            function resetForm() {
-                document.getElementById('orderNumber').value = generateOrderNumber();
-                document.getElementById('orderDate').valueAsDate = new Date();
-                document.getElementById('customerName').value = '';
-                document.getElementById('customerPhone').value = '';
-                document.getElementById('deliveryAddress').value = '';
-                document.getElementById('orderNotes').value = '';
-                currentItems = [];
-                renderItems();
-            }
             
             // 列印訂單
-            document.getElementById('printBtn').addEventListener('click', function() {
+            const printOrderBtn = document.getElementById('print-order');
+            
+            printOrderBtn.addEventListener('click', function() {
                 window.print();
             });
-            
-            // 載入訂單
-            function loadOrder(index) {
-                const order = orders[index];
-                document.getElementById('orderNumber').value = order.orderNumber;
-                document.getElementById('orderDate').value = order.orderDate;
-                document.getElementById('customerName').value = order.customerName;
-                document.getElementById('customerPhone').value = order.customerPhone || '';
-                document.getElementById('deliveryAddress').value = order.deliveryAddress || '';
-                document.getElementById('orderNotes').value = order.notes || '';
-                
-                currentItems = [...order.items];
-                renderItems();
-            }
-            
-            // 切換頁面
-            document.getElementById('newOrderBtn').addEventListener('click', showOrderForm);
-            document.getElementById('orderListBtn').addEventListener('click', showOrderList);
-            
-            function showOrderForm() {
-                document.getElementById('orderForm').classList.remove('hidden');
-                document.getElementById('orderList').classList.add('hidden');
-            }
-            
-            function showOrderList() {
-                document.getElementById('orderForm').classList.add('hidden');
-                document.getElementById('orderList').classList.remove('hidden');
-                renderOrderList();
-            }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95237758a391f083',t:'MTc1MDM0MDcxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9546107c3676de67',t:'MTc1MDcwMzUwOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
