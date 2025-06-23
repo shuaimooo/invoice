@@ -1,666 +1,825 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雞場銷售管理系統</title>
+    <title>雞肉批發管理系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f7f9fc;
+            background-color: #f7f3eb;
         }
-        .chart-container {
-            position: relative;
-            height: 200px;
-        }
-        .tooltip {
-            position: absolute;
+        .tab-content {
             display: none;
-            background: white;
-            border: 1px solid #ddd;
-            padding: 8px;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            z-index: 100;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .price-hidden {
+            filter: blur(5px);
+        }
+        .price-hidden:hover {
+            filter: none;
+        }
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+    <div class="min-h-screen flex flex-col">
+        <!-- 頂部導航 -->
         <nav class="bg-amber-700 text-white shadow-lg">
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12,5c0,0-4-2-7,0s-3,7-3,7s1,3,3,3s4-1,4-1v-4h6v4c0,0,2,1,4,1s3-3,3-3s0-5-3-7S12,5,12,5z"/>
-                        <circle cx="9" cy="10" r="1"/>
-                        <path d="M15,16c0,0,0-2,2-2s2,1,2,2"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
                     </svg>
-                    <span class="text-xl font-bold">雞場銷售管理系統</span>
+                    <h1 class="text-xl font-bold">優質雞肉批發中心</h1>
                 </div>
-                <div class="hidden md:flex space-x-6">
-                    <a href="#dashboard" class="hover:text-amber-200 font-medium">儀表板</a>
-                    <a href="#products" class="hover:text-amber-200 font-medium">產品管理</a>
-                    <a href="#channels" class="hover:text-amber-200 font-medium">銷售渠道</a>
-                    <a href="#knowledge" class="hover:text-amber-200 font-medium">行業知識</a>
-                    <a href="#pricing" class="hover:text-amber-200 font-medium">定價策略</a>
+                <div class="flex items-center space-x-4">
+                    <button id="menu-btn" class="px-3 py-1 rounded hover:bg-amber-600 transition">產品菜單</button>
+                    <button id="order-btn" class="px-3 py-1 rounded hover:bg-amber-600 transition">訂購表單</button>
+                    <button id="login-btn" class="px-3 py-1 bg-amber-600 rounded hover:bg-amber-500 transition">管理登入</button>
                 </div>
-                <button id="mobile-menu-button" class="md:hidden text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-            <div id="mobile-menu" class="hidden md:hidden px-4 py-2 bg-amber-800">
-                <a href="#dashboard" class="block py-2 hover:text-amber-200">儀表板</a>
-                <a href="#products" class="block py-2 hover:text-amber-200">產品管理</a>
-                <a href="#channels" class="block py-2 hover:text-amber-200">銷售渠道</a>
-                <a href="#knowledge" class="block py-2 hover:text-amber-200">行業知識</a>
-                <a href="#pricing" class="block py-2 hover:text-amber-200">定價策略</a>
             </div>
         </nav>
 
-        <div class="container mx-auto px-4 py-6">
-            <div id="dashboard" class="mb-12">
-                <h2 class="text-2xl font-bold text-amber-800 mb-6">銷售儀表板</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-700">本月銷售總額</h3>
-                            <span class="text-green-500">↑ 12%</span>
-                        </div>
-                        <p class="text-3xl font-bold text-amber-600">¥ 128,450</p>
-                        <div class="mt-4 h-2 bg-gray-200 rounded-full">
-                            <div class="h-2 bg-amber-500 rounded-full" style="width: 75%"></div>
-                        </div>
-                        <p class="text-sm text-gray-500 mt-2">目標達成率: 75%</p>
+        <!-- 主要內容區 -->
+        <div class="container mx-auto px-4 py-6 flex-grow">
+            <!-- 產品菜單 -->
+            <div id="menu-tab" class="tab-content active">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-2xl font-bold text-amber-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        產品菜單
+                    </h2>
+                    <p class="text-gray-600 mb-6">我們提供優質整隻雞，不分切，品質保證。所有價格均為批發價，歡迎洽詢。</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-amber-100">
+                                    <th class="border border-amber-300 px-4 py-2 text-left">產品類型</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">規格</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">特色</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">售價 (元/隻)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.0-2.2kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">放養飼養，肉質結實，風味佳</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.3-2.5kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">放養飼養，肉質結實，風味佳</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">仿土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">半放養，肉質鮮嫩，性價比高</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">仿土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.1-2.3kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">半放養，肉質鮮嫩，性價比高</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">冷凍雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.5-1.7kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">速凍保鮮，方便存放，適合大量採購</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">冷凍雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">速凍保鮮，方便存放，適合大量採購</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">生鮮雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">當日宰殺，新鮮直送</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">熟雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">特製醬料醃製，真空包裝</td>
+                                    <td class="border border-amber-200 px-4 py-3">市場價格</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-700">本月銷售數量</h3>
-                            <span class="text-green-500">↑ 8%</span>
-                        </div>
-                        <p class="text-3xl font-bold text-amber-600">2,345 隻</p>
-                        <div class="mt-4 h-2 bg-gray-200 rounded-full">
-                            <div class="h-2 bg-amber-500 rounded-full" style="width: 68%"></div>
-                        </div>
-                        <p class="text-sm text-gray-500 mt-2">目標達成率: 68%</p>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-700">平均利潤率</h3>
-                            <span class="text-red-500">↓ 2%</span>
-                        </div>
-                        <p class="text-3xl font-bold text-amber-600">23.5%</p>
-                        <div class="mt-4 h-2 bg-gray-200 rounded-full">
-                            <div class="h-2 bg-amber-500 rounded-full" style="width: 85%"></div>
-                        </div>
-                        <p class="text-sm text-gray-500 mt-2">目標達成率: 85%</p>
-                    </div>
-                </div>
-
-                <div class="mt-8 bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-medium text-gray-700 mb-4">銷售趨勢</h3>
-                    <div class="chart-container" id="sales-chart">
-                        <canvas id="trend-chart"></canvas>
+                    
+                    <div class="mt-6 bg-amber-50 p-4 rounded-lg border border-amber-200">
+                        <h3 class="font-bold text-amber-800 mb-2">批發優惠政策：</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                            <li>單次訂購 10-30 隻：享有 95 折優惠</li>
+                            <li>單次訂購 31-50 隻：享有 9 折優惠</li>
+                            <li>單次訂購 51 隻以上：享有 85 折優惠</li>
+                            <li>長期合作客戶可享有更多專屬優惠，請聯繫業務人員</li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
-            <div id="products" class="mb-12">
-                <h2 class="text-2xl font-bold text-amber-800 mb-6">產品管理</h2>
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div class="p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-700">雞種類型與庫存</h3>
-                            <button class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                                </svg>
-                                新增產品
+            <!-- 訂購表單 -->
+            <div id="order-tab" class="tab-content">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-2xl font-bold text-amber-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        訂購表單
+                    </h2>
+                    <p class="text-gray-600 mb-6">請填寫以下表單進行訂購，我們將盡快與您聯繫確認訂單詳情。</p>
+                    
+                    <form id="order-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="company">公司名稱</label>
+                                <input type="text" id="company" name="company" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="contact">聯絡人</label>
+                                <input type="text" id="contact" name="contact" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="phone">聯絡電話</label>
+                                <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="email">電子郵件</label>
+                                <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-gray-700 font-medium mb-2" for="address">送貨地址</label>
+                                <input type="text" id="address" name="address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="delivery-date">希望送達日期</label>
+                                <input type="date" id="delivery-date" name="delivery-date" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="delivery-time">希望送達時間</label>
+                                <select id="delivery-time" name="delivery-time" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                                    <option value="">請選擇時間</option>
+                                    <option value="morning">上午 (9:00-12:00)</option>
+                                    <option value="afternoon">下午 (13:00-17:00)</option>
+                                    <option value="evening">晚上 (18:00-20:00)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">訂購產品</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full border-collapse mb-4">
+                                    <thead>
+                                        <tr class="bg-amber-100">
+                                            <th class="border border-amber-300 px-4 py-2 text-left">產品類型</th>
+                                            <th class="border border-amber-300 px-4 py-2 text-left">規格</th>
+                                            <th class="border border-amber-300 px-4 py-2 text-left">數量 (隻)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="order-items">
+                                        <tr class="hover:bg-amber-50">
+                                            <td class="border border-amber-200 px-4 py-3">
+                                                <select class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-type">
+                                                    <option value="">選擇類型</option>
+                                                    <option value="土雞">土雞</option>
+                                                    <option value="仿土雞">仿土雞</option>
+                                                    <option value="冷凍雞">冷凍雞</option>
+                                                    <option value="生鮮雞">生鮮雞</option>
+                                                    <option value="熟雞">熟雞</option>
+                                                </select>
+                                            </td>
+                                            <td class="border border-amber-200 px-4 py-3">
+                                                <select class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-spec">
+                                                    <option value="">選擇規格</option>
+                                                    <option value="1.5-1.7kg/隻">1.5-1.7kg/隻</option>
+                                                    <option value="1.8-2.0kg/隻">1.8-2.0kg/隻</option>
+                                                    <option value="2.0-2.2kg/隻">2.0-2.2kg/隻</option>
+                                                    <option value="2.1-2.3kg/隻">2.1-2.3kg/隻</option>
+                                                    <option value="2.3-2.5kg/隻">2.3-2.5kg/隻</option>
+                                                </select>
+                                            </td>
+                                            <td class="border border-amber-200 px-4 py-3">
+                                                <input type="number" min="1" class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-quantity" placeholder="數量">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button type="button" id="add-item" class="text-amber-600 hover:text-amber-800 flex items-center text-sm mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    新增產品項目
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2" for="notes">備註</label>
+                            <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-6 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                                提交訂單
                             </button>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead>
-                                    <tr>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">產品名稱</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">類型</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">庫存數量</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">單價 (¥)</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">狀態</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">本地土雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">土雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">450</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">68.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">充足</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-amber-600 hover:text-amber-800">
-                                            <button class="mr-2">編輯</button>
-                                            <button>詳情</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">白羽肉雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">生雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">780</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">42.50</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">充足</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-amber-600 hover:text-amber-800">
-                                            <button class="mr-2">編輯</button>
-                                            <button>詳情</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">烤雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">熟雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">120</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">88.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">適中</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-amber-600 hover:text-amber-800">
-                                            <button class="mr-2">編輯</button>
-                                            <button>詳情</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">素食仿雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">仿雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">85</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">56.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">偏低</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-amber-600 hover:text-amber-800">
-                                            <button class="mr-2">編輯</button>
-                                            <button>詳情</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
 
-            <div id="channels" class="mb-12">
-                <h2 class="text-2xl font-bold text-amber-800 mb-6">銷售渠道</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-medium text-gray-700 mb-4">渠道分析</h3>
-                        <div class="chart-container" id="channel-chart">
-                            <canvas id="pie-chart"></canvas>
-                        </div>
-                        <div class="mt-4 grid grid-cols-2 gap-2">
-                            <div class="flex items-center">
-                                <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
-                                <span class="text-sm">餐廳批發 (35%)</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
-                                <span class="text-sm">超市零售 (25%)</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
-                                <span class="text-sm">線上銷售 (20%)</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
-                                <span class="text-sm">農貿市場 (15%)</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="w-3 h-3 bg-purple-500 rounded-full mr-2"></span>
-                                <span class="text-sm">其他 (5%)</span>
-                            </div>
-                        </div>
+            <!-- 管理後台 -->
+            <div id="admin-tab" class="tab-content">
+                <!-- 成本與售價表 -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-amber-800 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            成本與售價表 (內部參考)
+                        </h2>
+                        <div class="text-sm text-gray-500">更新日期: 2023/06/15</div>
                     </div>
-                    <div class="bg-white rounded-lg shadow-md p-6">
-                        <h3 class="text-lg font-medium text-gray-700 mb-4">渠道管理</h3>
-                        <div class="space-y-4">
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-amber-50 transition cursor-pointer">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h4 class="font-medium text-gray-800">餐廳批發</h4>
-                                        <p class="text-sm text-gray-500">主要客戶: 45家餐廳</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-medium text-amber-600">¥45,000</p>
-                                        <p class="text-sm text-green-600">↑ 8%</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-amber-50 transition cursor-pointer">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h4 class="font-medium text-gray-800">超市零售</h4>
-                                        <p class="text-sm text-gray-500">主要客戶: 12家超市</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-medium text-amber-600">¥32,000</p>
-                                        <p class="text-sm text-green-600">↑ 5%</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-amber-50 transition cursor-pointer">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h4 class="font-medium text-gray-800">線上銷售</h4>
-                                        <p class="text-sm text-gray-500">主要平台: 淘寶、京東</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-medium text-amber-600">¥25,600</p>
-                                        <p class="text-sm text-green-600">↑ 15%</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-amber-50 transition cursor-pointer">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h4 class="font-medium text-gray-800">農貿市場</h4>
-                                        <p class="text-sm text-gray-500">主要市場: 5個農貿市場</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-medium text-amber-600">¥19,200</p>
-                                        <p class="text-sm text-red-600">↓ 3%</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <button class="w-full bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium py-2 rounded-md mt-2">
-                                + 添加新渠道
-                            </button>
-                        </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-amber-100">
+                                    <th class="border border-amber-300 px-4 py-2 text-left">產品類型</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">規格</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">成本價 (元/隻)</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">建議售價 (元/隻)</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">毛利率</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.0-2.2kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">320</td>
+                                    <td class="border border-amber-200 px-4 py-3">380</td>
+                                    <td class="border border-amber-200 px-4 py-3">15.8%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.3-2.5kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">350</td>
+                                    <td class="border border-amber-200 px-4 py-3">420</td>
+                                    <td class="border border-amber-200 px-4 py-3">16.7%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">仿土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">240</td>
+                                    <td class="border border-amber-200 px-4 py-3">290</td>
+                                    <td class="border border-amber-200 px-4 py-3">17.2%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">仿土雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">2.1-2.3kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">260</td>
+                                    <td class="border border-amber-200 px-4 py-3">310</td>
+                                    <td class="border border-amber-200 px-4 py-3">16.1%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">冷凍雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.5-1.7kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">180</td>
+                                    <td class="border border-amber-200 px-4 py-3">220</td>
+                                    <td class="border border-amber-200 px-4 py-3">18.2%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">冷凍雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">200</td>
+                                    <td class="border border-amber-200 px-4 py-3">240</td>
+                                    <td class="border border-amber-200 px-4 py-3">16.7%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">生鮮雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">220</td>
+                                    <td class="border border-amber-200 px-4 py-3">270</td>
+                                    <td class="border border-amber-200 px-4 py-3">18.5%</td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3 font-medium">熟雞</td>
+                                    <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                                    <td class="border border-amber-200 px-4 py-3">280</td>
+                                    <td class="border border-amber-200 px-4 py-3">350</td>
+                                    <td class="border border-amber-200 px-4 py-3">20.0%</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
 
-            <div id="knowledge" class="mb-12">
-                <h2 class="text-2xl font-bold text-amber-800 mb-6">行業知識庫</h2>
+                <!-- 訂單管理 -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-700 mb-4">專業知識要點</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <h4 class="font-medium text-amber-700 mb-2">雞種特性與飼養</h4>
-                                <ul class="list-disc list-inside text-gray-600 space-y-1">
-                                    <li>土雞：生長期長，肉質緊實，風味濃郁，適合燉湯</li>
-                                    <li>白羽肉雞：生長快，成本低，肉質嫩，適合快餐</li>
-                                    <li>黃羽肉雞：生長適中，肉質介於土雞與白羽雞之間</li>
-                                    <li>蛋雞：主要用於產蛋，淘汰後可作為湯雞</li>
-                                </ul>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <h4 class="font-medium text-amber-700 mb-2">食品安全與檢疫</h4>
-                                <ul class="list-disc list-inside text-gray-600 space-y-1">
-                                    <li>屠宰前檢疫：確保雞隻健康無病</li>
-                                    <li>屠宰過程：符合衛生標準，防止交叉污染</li>
-                                    <li>冷鏈運輸：全程保持適宜溫度，防止細菌滋生</li>
-                                    <li>檢測報告：定期進行抗生素殘留、病原菌檢測</li>
-                                </ul>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <h4 class="font-medium text-amber-700 mb-2">市場行情與定價</h4>
-                                <ul class="list-disc list-inside text-gray-600 space-y-1">
-                                    <li>季節性波動：節假日前價格上漲，平日相對穩定</li>
-                                    <li>飼料成本：玉米、豆粕價格直接影響雞肉成本</li>
-                                    <li>競爭對手：了解主要競爭對手的價格策略</li>
-                                    <li>差異化定價：不同渠道、不同產品採用不同價格策略</li>
-                                </ul>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <h4 class="font-medium text-amber-700 mb-2">銷售技巧與客戶管理</h4>
-                                <ul class="list-disc list-inside text-gray-600 space-y-1">
-                                    <li>客戶分級：根據購買量、穩定性進行分級管理</li>
-                                    <li>關係維護：定期拜訪，了解需求變化</li>
-                                    <li>解決方案：提供完整的產品組合方案</li>
-                                    <li>售後服務：及時處理投訴，建立信任關係</li>
-                                </ul>
-                            </div>
+                    <h2 class="text-2xl font-bold text-amber-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        訂單管理
+                    </h2>
+                    
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-gray-700 text-sm font-medium mb-1" for="filter-status">訂單狀態</label>
+                            <select id="filter-status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <option value="all">全部</option>
+                                <option value="pending">待處理</option>
+                                <option value="confirmed">已確認</option>
+                                <option value="shipped">已出貨</option>
+                                <option value="completed">已完成</option>
+                                <option value="cancelled">已取消</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-gray-700 text-sm font-medium mb-1" for="filter-date">日期範圍</label>
+                            <select id="filter-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                <option value="all">全部</option>
+                                <option value="today">今天</option>
+                                <option value="yesterday">昨天</option>
+                                <option value="week">本週</option>
+                                <option value="month">本月</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-gray-700 text-sm font-medium mb-1" for="search-order">搜尋</label>
+                            <input type="text" id="search-order" placeholder="訂單號碼/客戶名稱" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
                         </div>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-4">行業資訊</h3>
-                        <div class="space-y-4">
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-amber-50 transition cursor-pointer">
-                                <h4 class="font-medium text-gray-800">2023年第二季度家禽市場分析報告</h4>
-                                <p class="text-sm text-gray-500 mt-1">發布日期: 2023-07-15</p>
-                                <p class="text-gray-600 mt-2">本季度家禽市場整體呈現穩中有升趨勢，土雞需求增長明顯，白羽肉雞價格小幅波動...</p>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-amber-50 transition cursor-pointer">
-                                <h4 class="font-medium text-gray-800">新版《食品安全法》對家禽養殖業的影響</h4>
-                                <p class="text-sm text-gray-500 mt-1">發布日期: 2023-06-22</p>
-                                <p class="text-gray-600 mt-2">新版法規加強了對抗生素使用的監管，提高了屠宰環節的衛生要求，對養殖場提出更高標準...</p>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-amber-50 transition cursor-pointer">
-                                <h4 class="font-medium text-gray-800">家禽產品電商銷售策略與案例分析</h4>
-                                <p class="text-sm text-gray-500 mt-1">發布日期: 2023-05-10</p>
-                                <p class="text-gray-600 mt-2">本文分析了5家成功的家禽電商案例，總結了線上銷售的關鍵成功因素和營銷策略...</p>
-                            </div>
-                        </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-amber-100">
+                                    <th class="border border-amber-300 px-4 py-2 text-left">訂單編號</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">客戶名稱</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">訂購日期</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">送貨日期</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">訂單金額</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">狀態</th>
+                                    <th class="border border-amber-300 px-4 py-2 text-left">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order-list">
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3">ORD-20230615-001</td>
+                                    <td class="border border-amber-200 px-4 py-3">好味餐廳</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/15</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/17</td>
+                                    <td class="border border-amber-200 px-4 py-3">$7,600</td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">待處理</span>
+                                    </td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <button class="text-amber-600 hover:text-amber-800 mr-2 view-order" data-id="ORD-20230615-001">查看</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3">ORD-20230614-003</td>
+                                    <td class="border border-amber-200 px-4 py-3">鮮味食品</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/14</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/16</td>
+                                    <td class="border border-amber-200 px-4 py-3">$12,400</td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">已確認</span>
+                                    </td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <button class="text-amber-600 hover:text-amber-800 mr-2 view-order" data-id="ORD-20230614-003">查看</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3">ORD-20230614-002</td>
+                                    <td class="border border-amber-200 px-4 py-3">大眾超市</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/14</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/15</td>
+                                    <td class="border border-amber-200 px-4 py-3">$5,800</td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">已出貨</span>
+                                    </td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <button class="text-amber-600 hover:text-amber-800 mr-2 view-order" data-id="ORD-20230614-002">查看</button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-amber-50">
+                                    <td class="border border-amber-200 px-4 py-3">ORD-20230613-001</td>
+                                    <td class="border border-amber-200 px-4 py-3">金龍餐飲</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/13</td>
+                                    <td class="border border-amber-200 px-4 py-3">2023/06/14</td>
+                                    <td class="border border-amber-200 px-4 py-3">$9,200</td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">已完成</span>
+                                    </td>
+                                    <td class="border border-amber-200 px-4 py-3">
+                                        <button class="text-amber-600 hover:text-amber-800 mr-2 view-order" data-id="ORD-20230613-001">查看</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            </div>
-
-            <div id="pricing" class="mb-12">
-                <h2 class="text-2xl font-bold text-amber-800 mb-6">定價策略</h2>
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-700 mb-4">市場行情分析</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead>
-                                    <tr>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">產品類型</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">市場均價 (¥/kg)</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">成本 (¥/kg)</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">建議零售價 (¥/kg)</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">建議批發價 (¥/kg)</th>
-                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">利潤率</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">土雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">65.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">48.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">68.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">58.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="text-green-600">29.4%</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">白羽肉雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">40.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">32.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">42.50</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">36.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="text-green-600">24.8%</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">烤雞 (熟食)</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">85.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">62.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">88.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">75.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="text-green-600">29.5%</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">素食仿雞</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">52.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">38.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">56.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">46.00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="text-green-600">32.1%</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <h3 class="text-lg font-medium text-gray-700 mb-4">定價策略建議</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <h4 class="font-medium text-amber-700 mb-2">差異化定價</h4>
-                                <p class="text-gray-600">根據不同銷售渠道採用不同價格策略：</p>
-                                <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
-                                    <li>餐廳批發：提供穩定的批發價，簽訂長期合同</li>
-                                    <li>超市零售：根據銷量提供階梯式折扣</li>
-                                    <li>線上銷售：提供特惠套餐，增加客單價</li>
-                                    <li>農貿市場：保持價格競爭力，快速周轉</li>
-                                </ul>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <h4 class="font-medium text-amber-700 mb-2">季節性調價</h4>
-                                <p class="text-gray-600">根據季節性需求波動調整價格：</p>
-                                <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
-                                    <li>節假日前：適當提高價格 5-10%</li>
-                                    <li>淡季：推出促銷活動，保持銷量</li>
-                                    <li>夏季：熟食產品提高價格，生鮮適當降價</li>
-                                    <li>冬季：湯雞、燉雞等產品提高價格</li>
-                                </ul>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <h4 class="font-medium text-amber-700 mb-2">產品組合定價</h4>
-                                <p class="text-gray-600">通過產品組合提高整體利潤：</p>
-                                <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
-                                    <li>雞肉套餐：搭配雞翅、雞腿等高利潤部位</li>
-                                    <li>加工產品：開發雞肉丸、雞肉腸等高附加值產品</li>
-                                    <li>副產品利用：雞爪、雞頭等特色產品開發</li>
-                                    <li>品牌溢價：建立品牌，提高產品溢價能力</li>
-                                </ul>
-                            </div>
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <h4 class="font-medium text-amber-700 mb-2">客戶等級定價</h4>
-                                <p class="text-gray-600">根據客戶重要性提供差異化價格：</p>
-                                <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1">
-                                    <li>A級客戶：提供最優惠價格，優先供貨</li>
-                                    <li>B級客戶：提供標準批發價，保證供貨</li>
-                                    <li>C級客戶：提供基本折扣，按訂單供貨</li>
-                                    <li>新客戶：提供首單優惠，吸引長期合作</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-700 mb-4">價格調整工具</h3>
-                        <div class="border border-gray-200 rounded-lg p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">產品類型</label>
-                                    <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                        <option>土雞</option>
-                                        <option>白羽肉雞</option>
-                                        <option>烤雞 (熟食)</option>
-                                        <option>素食仿雞</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">成本 (¥/kg)</label>
-                                    <input type="number" value="48.00" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">目標利潤率 (%)</label>
-                                    <input type="number" value="25" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">銷售渠道</label>
-                                    <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                        <option>餐廳批發</option>
-                                        <option>超市零售</option>
-                                        <option>線上銷售</option>
-                                        <option>農貿市場</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">季節因素</label>
-                                    <select class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                        <option>正常季節</option>
-                                        <option>節假日前</option>
-                                        <option>淡季</option>
-                                        <option>旺季</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center mt-6">
-                                <button class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-md">計算建議價格</button>
-                                <div>
-                                    <p class="text-gray-700">建議零售價: <span class="font-bold text-amber-600">¥68.00/kg</span></p>
-                                    <p class="text-gray-700">建議批發價: <span class="font-bold text-amber-600">¥58.00/kg</span></p>
-                                </div>
-                            </div>
+                    
+                    <div class="mt-6 flex justify-between items-center">
+                        <div class="text-sm text-gray-600">顯示 1 至 4 筆，共 4 筆</div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>上一頁</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-amber-50 text-amber-800 font-medium">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>下一頁</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <footer class="bg-amber-800 text-white py-6">
+        <!-- 頁腳 -->
+        <footer class="bg-amber-800 text-white py-6 mt-8">
             <div class="container mx-auto px-4">
                 <div class="flex flex-col md:flex-row justify-between items-center">
                     <div class="mb-4 md:mb-0">
-                        <h3 class="text-xl font-bold mb-2">雞場銷售管理系統</h3>
-                        <p class="text-amber-200">專業的雞場銷售解決方案</p>
+                        <h3 class="text-xl font-bold mb-2">優質雞肉批發中心</h3>
+                        <p class="text-amber-200">提供最優質的雞肉，滿足您的批發需求</p>
                     </div>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-white hover:text-amber-200">幫助中心</a>
-                        <a href="#" class="text-white hover:text-amber-200">聯繫我們</a>
-                        <a href="#" class="text-white hover:text-amber-200">系統更新</a>
+                    <div class="flex flex-col items-center md:items-end">
+                        <div class="flex items-center mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span>業務專線：(02) 2345-6789</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span>電子郵件：service@chickenwholesale.com</span>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-6 pt-6 border-t border-amber-700 text-center text-amber-200 text-sm">
-                    © 2025 雞場銷售管理系統 版權所有
+                <div class="border-t border-amber-700 mt-6 pt-4 text-center text-sm text-amber-300">
+                    © 2023 優質雞肉批發中心. 版權所有.
                 </div>
             </div>
         </footer>
     </div>
 
-    <div id="tooltip" class="tooltip"></div>
+    <!-- 登入彈窗 -->
+    <div id="login-modal" class="login-overlay hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">管理員登入</h3>
+                <button id="close-login" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" for="username">帳號</label>
+                    <input type="text" id="username" name="username" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2" for="password">密碼</label>
+                    <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" required>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="px-6 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                        登入
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 訂單詳情彈窗 -->
+    <div id="order-detail-modal" class="login-overlay hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">訂單詳情 <span id="detail-order-id" class="text-amber-600">ORD-20230615-001</span></h3>
+                <button id="close-detail" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">客戶資訊</h4>
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <p><span class="font-medium">公司名稱：</span> <span id="detail-company">好味餐廳</span></p>
+                        <p><span class="font-medium">聯絡人：</span> <span id="detail-contact">張經理</span></p>
+                        <p><span class="font-medium">聯絡電話：</span> <span id="detail-phone">0912-345-678</span></p>
+                        <p><span class="font-medium">電子郵件：</span> <span id="detail-email">zhang@goodtaste.com</span></p>
+                        <p><span class="font-medium">送貨地址：</span> <span id="detail-address">台北市中山區中山北路123號</span></p>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700 mb-2">訂單資訊</h4>
+                    <div class="bg-gray-50 p-4 rounded-md">
+                        <p><span class="font-medium">訂單編號：</span> <span id="detail-order-number">ORD-20230615-001</span></p>
+                        <p><span class="font-medium">訂購日期：</span> <span id="detail-order-date">2023/06/15</span></p>
+                        <p><span class="font-medium">送貨日期：</span> <span id="detail-delivery-date">2023/06/17</span></p>
+                        <p><span class="font-medium">送貨時間：</span> <span id="detail-delivery-time">上午 (9:00-12:00)</span></p>
+                        <p><span class="font-medium">訂單狀態：</span> 
+                            <select id="detail-status" class="px-2 py-1 border border-gray-300 rounded-md text-sm">
+                                <option value="pending">待處理</option>
+                                <option value="confirmed">已確認</option>
+                                <option value="shipped">已出貨</option>
+                                <option value="completed">已完成</option>
+                                <option value="cancelled">已取消</option>
+                            </select>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <h4 class="font-medium text-gray-700 mb-2">訂購產品</h4>
+            <div class="overflow-x-auto mb-6">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-amber-100">
+                            <th class="border border-amber-300 px-4 py-2 text-left">產品類型</th>
+                            <th class="border border-amber-300 px-4 py-2 text-left">規格</th>
+                            <th class="border border-amber-300 px-4 py-2 text-left">數量 (隻)</th>
+                            <th class="border border-amber-300 px-4 py-2 text-left">單價 (元/隻)</th>
+                            <th class="border border-amber-300 px-4 py-2 text-left">小計 (元)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3">土雞</td>
+                            <td class="border border-amber-200 px-4 py-3">2.0-2.2kg/隻</td>
+                            <td class="border border-amber-200 px-4 py-3">10</td>
+                            <td class="border border-amber-200 px-4 py-3">380</td>
+                            <td class="border border-amber-200 px-4 py-3">3,800</td>
+                        </tr>
+                        <tr class="hover:bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3">仿土雞</td>
+                            <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                            <td class="border border-amber-200 px-4 py-3">10</td>
+                            <td class="border border-amber-200 px-4 py-3">290</td>
+                            <td class="border border-amber-200 px-4 py-3">2,900</td>
+                        </tr>
+                        <tr class="hover:bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3">熟雞</td>
+                            <td class="border border-amber-200 px-4 py-3">1.8-2.0kg/隻</td>
+                            <td class="border border-amber-200 px-4 py-3">2</td>
+                            <td class="border border-amber-200 px-4 py-3">350</td>
+                            <td class="border border-amber-200 px-4 py-3">700</td>
+                        </tr>
+                        <tr class="hover:bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3 font-medium text-right" colspan="4">折扣 (95折):</td>
+                            <td class="border border-amber-200 px-4 py-3">-370</td>
+                        </tr>
+                        <tr class="hover:bg-amber-50 bg-amber-50">
+                            <td class="border border-amber-200 px-4 py-3 font-bold text-right" colspan="4">總計:</td>
+                            <td class="border border-amber-200 px-4 py-3 font-bold">7,030</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mb-6">
+                <h4 class="font-medium text-gray-700 mb-2">備註</h4>
+                <div class="bg-gray-50 p-4 rounded-md">
+                    <p id="detail-notes">請於送貨前一小時聯繫，謝謝。</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-between">
+                <div>
+                    <button id="print-order" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        列印訂單
+                    </button>
+                </div>
+                <div class="space-x-2">
+                    <button id="save-order" class="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                        儲存變更
+                    </button>
+                    <button id="close-detail-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">
+                        關閉
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 訂單提交成功彈窗 -->
+    <div id="success-modal" class="login-overlay hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-center">
+            <div class="mb-4 flex justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">訂單提交成功！</h3>
+            <p class="text-gray-600 mb-6">感謝您的訂購，我們將盡快處理您的訂單。</p>
+            <p class="text-gray-600 mb-6">訂單編號：<span id="success-order-id" class="font-medium text-amber-600">ORD-20230616-001</span></p>
+            <button id="close-success" class="px-6 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition">
+                確定
+            </button>
+        </div>
+    </div>
+
     <script>
-        // 移動菜單切換
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // 銷售趨勢圖表
-        const trendCtx = document.getElementById('trend-chart').getContext('2d');
-        const trendChart = new Chart(trendCtx, {
-            type: 'line',
-            data: {
-                labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
-                datasets: [
-                    {
-                        label: '土雞',
-                        data: [65000, 59000, 80000, 81000, 86000, 95000],
-                        borderColor: 'rgb(255, 99, 132)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: '白羽肉雞',
-                        data: [28000, 48000, 40000, 39000, 46000, 47000],
-                        borderColor: 'rgb(54, 162, 235)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: '熟雞',
-                        data: [32000, 38000, 42000, 49000, 55000, 60000],
-                        borderColor: 'rgb(255, 159, 64)',
-                        backgroundColor: 'rgba(255, 159, 64, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    },
-                    {
-                        label: '仿雞',
-                        data: [15000, 19000, 21000, 25000, 28000, 30000],
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '¥' + value / 1000 + 'k';
-                            }
-                        }
-                    }
+        document.addEventListener('DOMContentLoaded', function() {
+            // 頁籤切換
+            const menuBtn = document.getElementById('menu-btn');
+            const orderBtn = document.getElementById('order-btn');
+            const loginBtn = document.getElementById('login-btn');
+            const menuTab = document.getElementById('menu-tab');
+            const orderTab = document.getElementById('order-tab');
+            const adminTab = document.getElementById('admin-tab');
+            
+            menuBtn.addEventListener('click', function() {
+                menuTab.classList.add('active');
+                orderTab.classList.remove('active');
+                adminTab.classList.remove('active');
+                menuBtn.classList.add('bg-amber-600');
+                orderBtn.classList.remove('bg-amber-600');
+                loginBtn.classList.remove('bg-amber-600');
+            });
+            
+            orderBtn.addEventListener('click', function() {
+                menuTab.classList.remove('active');
+                orderTab.classList.add('active');
+                adminTab.classList.remove('active');
+                menuBtn.classList.remove('bg-amber-600');
+                orderBtn.classList.add('bg-amber-600');
+                loginBtn.classList.remove('bg-amber-600');
+            });
+            
+            // 登入彈窗
+            const loginModal = document.getElementById('login-modal');
+            const closeLogin = document.getElementById('close-login');
+            
+            loginBtn.addEventListener('click', function() {
+                loginModal.classList.remove('hidden');
+            });
+            
+            closeLogin.addEventListener('click', function() {
+                loginModal.classList.add('hidden');
+            });
+            
+            // 登入表單提交
+            const loginForm = document.getElementById('login-form');
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                // 簡單的驗證，實際應用中應使用更安全的方式
+                if (username === 'admin' && password === 'admin123') {
+                    loginModal.classList.add('hidden');
+                    menuTab.classList.remove('active');
+                    orderTab.classList.remove('active');
+                    adminTab.classList.add('active');
+                    menuBtn.classList.remove('bg-amber-600');
+                    orderBtn.classList.remove('bg-amber-600');
+                    loginBtn.classList.add('bg-amber-600');
+                } else {
+                    alert('帳號或密碼錯誤！');
                 }
-            }
-        });
-
-        // 渠道分析餅圖
-        const pieCtx = document.getElementById('pie-chart').getContext('2d');
-        const pieChart = new Chart(pieCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['餐廳批發', '超市零售', '線上銷售', '農貿市場', '其他'],
-                datasets: [{
-                    data: [35, 25, 20, 15, 5],
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(255, 206, 86, 0.8)',
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(153, 102, 255, 0.8)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
-
-        // 平滑滾動到錨點
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+            });
+            
+            // 新增產品項目
+            const addItemBtn = document.getElementById('add-item');
+            const orderItems = document.getElementById('order-items');
+            
+            addItemBtn.addEventListener('click', function() {
+                const newRow = document.createElement('tr');
+                newRow.className = 'hover:bg-amber-50';
+                newRow.innerHTML = `
+                    <td class="border border-amber-200 px-4 py-3">
+                        <select class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-type">
+                            <option value="">選擇類型</option>
+                            <option value="土雞">土雞</option>
+                            <option value="仿土雞">仿土雞</option>
+                            <option value="冷凍雞">冷凍雞</option>
+                            <option value="生鮮雞">生鮮雞</option>
+                            <option value="熟雞">熟雞</option>
+                        </select>
+                    </td>
+                    <td class="border border-amber-200 px-4 py-3">
+                        <select class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-spec">
+                            <option value="">選擇規格</option>
+                            <option value="1.5-1.7kg/隻">1.5-1.7kg/隻</option>
+                            <option value="1.8-2.0kg/隻">1.8-2.0kg/隻</option>
+                            <option value="2.0-2.2kg/隻">2.0-2.2kg/隻</option>
+                            <option value="2.1-2.3kg/隻">2.1-2.3kg/隻</option>
+                            <option value="2.3-2.5kg/隻">2.3-2.5kg/隻</option>
+                        </select>
+                    </td>
+                    <td class="border border-amber-200 px-4 py-3">
+                        <input type="number" min="1" class="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-amber-500 product-quantity" placeholder="數量">
+                    </td>
+                `;
+                orderItems.appendChild(newRow);
+            });
+            
+            // 訂單表單提交
+            const orderForm = document.getElementById('order-form');
+            const successModal = document.getElementById('success-modal');
+            const closeSuccess = document.getElementById('close-success');
+            const successOrderId = document.getElementById('success-order-id');
+            
+            orderForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
+                // 生成訂單編號
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                const orderId = `ORD-${year}${month}${day}-${random}`;
                 
-                if (targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                    
-                    // 如果是移動菜單，點擊後關閉
-                    const mobileMenu = document.getElementById('mobile-menu');
-                    if (!mobileMenu.classList.contains('hidden')) {
-                        mobileMenu.classList.add('hidden');
-                    }
+                successOrderId.textContent = orderId;
+                successModal.classList.remove('hidden');
+                
+                // 清空表單
+                orderForm.reset();
+                while (orderItems.children.length > 1) {
+                    orderItems.removeChild(orderItems.lastChild);
                 }
+            });
+            
+            closeSuccess.addEventListener('click', function() {
+                successModal.classList.add('hidden');
+            });
+            
+            // 訂單詳情彈窗
+            const orderDetailModal = document.getElementById('order-detail-modal');
+            const closeDetail = document.getElementById('close-detail');
+            const closeDetailBtn = document.getElementById('close-detail-btn');
+            const viewOrderBtns = document.querySelectorAll('.view-order');
+            
+            viewOrderBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-id');
+                    document.getElementById('detail-order-id').textContent = orderId;
+                    document.getElementById('detail-order-number').textContent = orderId;
+                    orderDetailModal.classList.remove('hidden');
+                });
+            });
+            
+            closeDetail.addEventListener('click', function() {
+                orderDetailModal.classList.add('hidden');
+            });
+            
+            closeDetailBtn.addEventListener('click', function() {
+                orderDetailModal.classList.add('hidden');
+            });
+            
+            // 儲存訂單變更
+            const saveOrderBtn = document.getElementById('save-order');
+            
+            saveOrderBtn.addEventListener('click', function() {
+                alert('訂單變更已儲存！');
+                orderDetailModal.classList.add('hidden');
+            });
+            
+            // 列印訂單
+            const printOrderBtn = document.getElementById('print-order');
+            
+            printOrderBtn.addEventListener('click', function() {
+                window.print();
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9529320555e1f06f',t:'MTc1MDQwMDc5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9546107c3676de67',t:'MTc1MDcwMzUwOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
