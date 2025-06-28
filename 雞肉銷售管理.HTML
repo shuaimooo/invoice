@@ -1,1274 +1,320 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雞肉銷售管理系統</title>
+    <title>雞肉供應合作表單</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f9fafb;
+            background-color: #f9f7f2;
         }
-        .status-badge {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            border-radius: 9999px;
+        .form-container {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
         }
-        .status-pending {
-            background-color: #fef3c7;
-            color: #92400e;
+        .header-bg {
+            background-color: #f8b551;
+            background-image: linear-gradient(135deg, #f8b551 0%, #f7941d 100%);
         }
-        .status-confirmed {
-            background-color: #dbeafe;
-            color: #1e40af;
+        .checkbox-item:hover {
+            background-color: #fff9e6;
         }
-        .status-shipped {
-            background-color: #f3e8ff;
-            color: #6b21a8;
+        .submit-btn {
+            background-color: #f7941d;
+            transition: all 0.3s ease;
         }
-        .status-completed {
-            background-color: #d1fae5;
-            color: #065f46;
+        .submit-btn:hover {
+            background-color: #e07c00;
+            transform: translateY(-2px);
         }
-        .status-cancelled {
-            background-color: #fee2e2;
-            color: #b91c1c;
+        .chicken-icon {
+            animation: bounce 2s infinite;
         }
-        .table-container {
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-        th {
-            position: sticky;
-            top: 0;
-            background-color: #f8fafc;
-            z-index: 10;
-        }
-        .pagination-button {
-            padding: 0.25rem 0.75rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.375rem;
-        }
-        .pagination-button:hover {
-            background-color: #f9fafb;
-        }
-        .pagination-button.active {
-            background-color: #f59e0b;
-            color: white;
-            border-color: #f59e0b;
-        }
-        .pagination-button.active:hover {
-            background-color: #d97706;
-        }
-        .order-actions button {
-            font-size: 0.875rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            transition: color 0.2s;
-        }
-        .tab {
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-bottom: 2px solid transparent;
-        }
-        .tab.active {
-            border-bottom-color: #f59e0b;
-            color: #f59e0b;
-            font-weight: 500;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .product-card {
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        #login-form {
-            max-width: 400px;
-            margin: 100px auto;
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 登入頁面 -->
-    <div id="login-page" class="min-h-screen flex items-center justify-center">
-        <div id="login-form" class="bg-white p-8 rounded-lg shadow-md w-full">
-            <div class="text-center mb-6">
-                <svg class="h-12 w-12 text-amber-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                </svg>
-                <h2 class="mt-2 text-2xl font-bold text-gray-900">雞肉銷售管理系統</h2>
-                <p class="mt-1 text-gray-600">請登入以繼續</p>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700">帳號</label>
-                    <input type="text" id="username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500" placeholder="請輸入帳號">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="form-container overflow-hidden">
+            <!-- Header -->
+            <div class="header-bg p-6 text-white relative overflow-hidden">
+                <div class="absolute right-4 top-4 text-6xl chicken-icon">🐔</div>
+                <h1 class="text-3xl font-bold mb-2">肉雞供應合作開放中</h1>
+                <p class="text-xl mb-4">餐廳、熟食、團購適用</p>
+                <div class="bg-white/20 p-4 rounded-lg backdrop-blur-sm max-w-2xl">
+                    <p class="mb-2">我們提供高品質整隻雞，適合大量使用，現正開放長期合作！</p>
+                    <ul class="space-y-1">
+                        <li>🔹 可提供雞種：黑羽雞、土雞、放山雞</li>
+                        <li>🔹 可選熟食（白斬 / 鹽水 / 燻雞）或生鮮</li>
+                        <li>🔹 可客製包裝：(目前只售整隻,不分切)、切半、去頭、真空冷藏</li>
+                        <li>🔹 可申請「試吃樣品」了解品質，再洽合作</li>
+                    </ul>
+                    <p class="mt-3 font-bold">📦 穩定供貨｜在地服務｜誠徵合作夥伴</p>
                 </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">密碼</label>
-                    <input type="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500" placeholder="請輸入密碼">
-                </div>
-                <button id="login-btn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
-                    登入
-                </button>
             </div>
-        </div>
-    </div>
 
-    <!-- 主系統頁面 -->
-    <div id="main-page" class="hidden min-h-screen">
-        <nav class="bg-white shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 flex items-center">
-                            <svg class="h-8 w-8 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                            </svg>
-                            <span class="ml-2 text-xl font-bold text-gray-800">雞肉銷售管理系統</span>
+            <!-- Form -->
+            <form id="chickenSupplyForm" class="p-6 space-y-6">
+                <p class="text-center text-lg font-medium text-amber-700">📌 歡迎填表洽談合作</p>
+                
+                <!-- Basic Info -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="businessName" class="block text-sm font-medium text-gray-700 mb-1">商家名稱</label>
+                        <input type="text" id="businessName" name="businessName" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label for="contactName" class="block text-sm font-medium text-gray-700 mb-1">聯絡人姓名</label>
+                        <input type="text" id="contactName" name="contactName" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="contactInfo" class="block text-sm font-medium text-gray-700 mb-1">聯絡方式（電話／LINE）</label>
+                    <input type="text" id="contactInfo" name="contactInfo" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500">
+                </div>
+
+                <div>
+                    <label for="region" class="block text-sm font-medium text-gray-700 mb-1">所在區域</label>
+                    <select id="region" name="region" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500">
+                        <option value="" disabled selected>請選擇區域</option>
+                        <option value="台北">台北</option>
+                        <option value="新北">新北</option>
+                        <option value="基隆">基隆</option>
+                        <option value="桃園">桃園</option>
+                        <option value="新竹">新竹</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-1">配送地址</label>
+                    <textarea id="address" name="address" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500"></textarea>
+                </div>
+
+                <!-- Cooperation Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">合作需求類型（可複選）</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="type1" name="cooperationType" value="餐廳用" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="type1" class="ml-2 text-sm text-gray-700">餐廳用</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="type2" name="cooperationType" value="熟食加工" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="type2" class="ml-2 text-sm text-gray-700">熟食加工</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="type3" name="cooperationType" value="外燴／辦桌" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="type3" class="ml-2 text-sm text-gray-700">外燴／辦桌</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="type4" name="cooperationType" value="團購銷售" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="type4" class="ml-2 text-sm text-gray-700">團購銷售</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="type5" name="cooperationType" value="禮盒搭配" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="type5" class="ml-2 text-sm text-gray-700">禮盒搭配</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="type6" name="cooperationType" value="其他" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="type6" class="ml-2 text-sm text-gray-700">其他</label>
                         </div>
                     </div>
-                    <div class="flex items-center">
-                        <span id="admin-name" class="text-sm font-medium text-gray-700 mr-4">管理員</span>
-                        <button id="logout-btn" class="flex items-center text-sm font-medium text-gray-700 hover:text-amber-500">
-                            <svg class="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                            登出
-                        </button>
+                </div>
+
+                <!-- Chicken Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">需要的雞種（可複選）</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="chicken1" name="chickenType" value="黑羽雞" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="chicken1" class="ml-2 text-sm text-gray-700">黑羽雞</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="chicken2" name="chickenType" value="放山雞" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="chicken2" class="ml-2 text-sm text-gray-700">放山雞</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="chicken3" name="chickenType" value="土雞" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="chicken3" class="ml-2 text-sm text-gray-700">土雞</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="chicken4" name="chickenType" value="仿土雞" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="chicken4" class="ml-2 text-sm text-gray-700">仿土雞</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="chicken5" name="chickenType" value="熟食雞" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="chicken5" class="ml-2 text-sm text-gray-700">熟食雞</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="chicken6" name="chickenType" value="冷凍/冷藏雞" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="chicken6" class="ml-2 text-sm text-gray-700">冷凍/冷藏雞</label>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-center">
+                        <input type="checkbox" id="chickenOther" name="chickenType" value="其他" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                        <label for="chickenOther" class="ml-2 text-sm text-gray-700">其他:</label>
+                        <input type="text" id="chickenOtherText" class="ml-2 px-2 py-1 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500 text-sm">
                     </div>
                 </div>
-            </div>
-        </nav>
 
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="border-b border-gray-200 mb-6">
-                <div class="flex space-x-8">
-                    <div class="tab active" data-tab="products">產品管理</div>
-                    <div class="tab" data-tab="orders">訂單管理</div>
-                    <div class="tab" data-tab="customers">客戶管理</div>
-                    <div class="tab" data-tab="reports">銷售報表</div>
+                <!-- Packaging -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">需要的包裝方式（可複選）</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="package1" name="packaging" value="真空包裝" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="package1" class="ml-2 text-sm text-gray-700">真空包裝</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="package2" name="packaging" value="整隻" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="package2" class="ml-2 text-sm text-gray-700">整隻</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="package3" name="packaging" value="切半(暫不分切)" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="package3" class="ml-2 text-sm text-gray-700">切半(暫不分切)</label>
+                        </div>
+                        <div class="checkbox-item flex items-center p-2 border border-gray-200 rounded-md">
+                            <input type="checkbox" id="package4" name="packaging" value="去頭(暫不分切)" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                            <label for="package4" class="ml-2 text-sm text-gray-700">去頭(暫不分切)</label>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex items-center">
+                        <input type="checkbox" id="packageOther" name="packaging" value="其他" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                        <label for="packageOther" class="ml-2 text-sm text-gray-700">其他:</label>
+                        <input type="text" id="packageOtherText" class="ml-2 px-2 py-1 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500 text-sm">
+                    </div>
                 </div>
-            </div>
 
-            <!-- 產品管理頁面 -->
-            <div id="products-tab" class="tab-content active">
-                <div class="flex justify-between items-center mb-6">
-                    <h1 class="text-2xl font-bold text-gray-800">產品管理</h1>
-                    <button id="add-product-btn" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md flex items-center transition-colors">
-                        <svg class="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        新增產品
+                <!-- Quantity -->
+                <div>
+                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">預計需求數量（每週）</label>
+                    <select id="quantity" name="quantity" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500">
+                        <option value="" disabled selected>請選擇數量</option>
+                        <option value="1-5隻">1–5 隻</option>
+                        <option value="6-20隻">6–20 隻</option>
+                        <option value="21-50隻">21–50 隻</option>
+                        <option value="50隻以上">50 隻以上</option>
+                    </select>
+                    <div class="mt-2 flex items-center">
+                        <input type="checkbox" id="quantityOther" name="quantityOther" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded">
+                        <label for="quantityOther" class="ml-2 text-sm text-gray-700">其他:</label>
+                        <input type="text" id="quantityOtherText" class="ml-2 px-2 py-1 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500 text-sm">
+                    </div>
+                </div>
+
+                <!-- Sample -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">是否想申請試吃樣品？</label>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="radio" id="sample1" name="sampleRequest" value="是，請與我聯繫" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300">
+                            <label for="sample1" class="ml-2 text-sm text-gray-700">是，請與我聯繫</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="sample2" name="sampleRequest" value="否，目前僅想了解" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300">
+                            <label for="sample2" class="ml-2 text-sm text-gray-700">否，目前僅想了解</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="sample3" name="sampleRequest" value="視合作再評估" class="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300">
+                            <label for="sample3" class="ml-2 text-sm text-gray-700">視合作再評估</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">備註／其他需求說明</label>
+                    <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500"></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="submit" class="submit-btn w-full py-3 px-4 text-white font-medium rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500">
+                        提交合作洽詢
                     </button>
                 </div>
+            </form>
 
-                <div class="bg-white p-6 rounded-lg shadow-sm mb-8">
-                    <h2 class="text-xl font-semibold mb-4">產品菜單</h2>
-                    <p class="text-gray-700 mb-4">我們提供優質整隻雞，不分切，品質保證。所有價格均為批發價，歡迎洽詢。</p>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">產品類型</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">規格</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">特色</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">售價 (元/隻)</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">成本</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200" id="product-table-body">
-                                <!-- 產品資料將由 JavaScript 動態生成 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-lg shadow-sm">
-                    <h2 class="text-xl font-semibold mb-4">批發優惠政策</h2>
-                    <ul class="list-disc pl-5 space-y-2 text-gray-700">
-                        <li>單次訂購 10-30 隻：享有 95 折優惠</li>
-                        <li>單次訂購 31-50 隻：享有 9 折優惠</li>
-                        <li>單次訂購 51 隻以上：享有 85 折優惠</li>
-                        <li>長期合作客戶可享有更多專屬優惠，請聯繫業務人員</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- 訂單管理頁面 -->
-            <div id="orders-tab" class="tab-content">
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-2xl font-bold text-gray-800">訂單列表</h1>
-                        <button id="new-order-btn" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md flex items-center transition-colors">
-                            <svg class="h-5 w-5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                            新增訂單
-                        </button>
-                    </div>
-
-                    <div class="flex flex-wrap gap-4 mb-6">
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-gray-700 text-sm font-medium mb-1" for="filter-status">訂單狀態</label>
-                            <select id="filter-status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                <option value="all">全部</option>
-                                <option value="pending">待處理</option>
-                                <option value="confirmed">已確認</option>
-                                <option value="shipped">已出貨</option>
-                                <option value="completed">已完成</option>
-                                <option value="cancelled">已取消</option>
-                            </select>
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-gray-700 text-sm font-medium mb-1" for="filter-date">日期範圍</label>
-                            <select id="filter-date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                <option value="all">全部</option>
-                                <option value="today">今天</option>
-                                <option value="yesterday">昨天</option>
-                                <option value="week">本週</option>
-                                <option value="month">本月</option>
-                            </select>
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-gray-700 text-sm font-medium mb-1" for="search-order">搜尋</label>
-                            <input type="text" id="search-order" placeholder="訂單號碼/客戶名稱" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                        </div>
-                    </div>
-
-                    <div class="table-container">
-                        <table class="min-w-full">
-                            <thead>
-                                <tr class="border-b">
-                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">訂單號碼</th>
-                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客戶名稱</th>
-                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">訂單日期</th>
-                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">金額</th>
-                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">狀態</th>
-                                    <th class="py-3 px-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orders-table-body">
-                                <!-- 訂單資料將由 JavaScript 動態生成 -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="mt-6 flex items-center justify-between">
-                        <div class="text-sm text-gray-700">
-                            顯示 <span id="showing-start">1</span> 至 <span id="showing-end">10</span> 筆，共 <span id="total-count">0</span> 筆資料
-                        </div>
-                        <div class="flex space-x-2">
-                            <button id="prev-page" class="pagination-button">上一頁</button>
-                            <button class="pagination-button active">1</button>
-                            <button id="next-page" class="pagination-button">下一頁</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 客戶管理頁面 -->
-            <div id="customers-tab" class="tab-content">
-                <h1 class="text-2xl font-bold text-gray-800 mb-6">客戶管理</h1>
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <p class="text-gray-500">客戶管理功能開發中...</p>
-                </div>
-            </div>
-
-            <!-- 銷售報表頁面 -->
-            <div id="reports-tab" class="tab-content">
-                <h1 class="text-2xl font-bold text-gray-800 mb-6">銷售報表</h1>
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                    <p class="text-gray-500">銷售報表功能開發中...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 訂單詳情彈窗 -->
-    <div id="order-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="border-b px-6 py-4 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900">訂單詳情</h3>
-                <button id="close-modal" class="text-gray-400 hover:text-gray-500">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <!-- Footer -->
+            <div class="bg-amber-50 p-6 text-center">
+                <div class="flex items-center justify-center mb-4">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                </button>
-            </div>
-            <div class="px-6 py-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <p class="text-sm text-gray-500">訂單號碼</p>
-                        <p id="modal-order-id" class="font-medium">ORD-20230501-0042</p>
+                    <p class="ml-2 text-lg font-medium text-gray-800">感謝您的填寫！</p>
+                </div>
+                <p class="text-gray-700 mb-4">我們將儘快與您聯繫安排試吃樣品或進一步合作討論。</p>
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-2 md:space-y-0 md:space-x-6">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                        </svg>
+                        <span class="ml-2 text-gray-700">手機洽詢：0926169899 蘇裕庭</span>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500">訂單日期</p>
-                        <p id="modal-order-date" class="font-medium">2023-05-01 14:30:25</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">客戶名稱</p>
-                        <p id="modal-customer-name" class="font-medium">王小明</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-500">聯絡電話</p>
-                        <p id="modal-customer-phone" class="font-medium">0912-345-678</p>
-                    </div>
-                    <div class="md:col-span-2">
-                        <p class="text-sm text-gray-500">配送地址</p>
-                        <p id="modal-shipping-address" class="font-medium">台北市信義區松高路123號7樓</p>
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 0c4.411 0 8 2.912 8 6.492 0 1.433-.555 2.723-1.715 3.994-1.678 1.932-5.431 4.285-6.285 4.645-.83.35-.734-.197-.696-.413l.003-.018.114-.685c.027-.204.055-.521-.026-.723-.09-.223-.444-.339-.704-.395C2.846 12.39 0 9.701 0 6.492 0 2.912 3.59 0 8 0ZM5.022 7.686H3.497V4.918a.156.156 0 0 0-.155-.156H2.78a.156.156 0 0 0-.156.156v3.486c0 .041.017.08.044.107v.001l.002.002.002.002a.154.154 0 0 0 .108.043h2.242c.086 0 .155-.07.155-.156v-.56a.156.156 0 0 0-.155-.157Zm.791-2.924a.156.156 0 0 0-.156.156v3.486c0 .086.07.155.156.155h.562c.086 0 .155-.07.155-.155V4.918a.156.156 0 0 0-.155-.156h-.562Zm3.863 0a.156.156 0 0 0-.156.156v2.07L7.923 4.832a.17.17 0 0 0-.013-.015v-.001a.139.139 0 0 0-.01-.01l-.003-.003a.092.092 0 0 0-.011-.009h-.001L7.88 4.79l-.003-.002a.029.029 0 0 0-.005-.003l-.008-.005h-.002l-.003-.002-.01-.004-.004-.002a.093.093 0 0 0-.01-.003h-.002l-.003-.001-.009-.002h-.006l-.003-.001h-.004l-.002-.001h-.574a.156.156 0 0 0-.156.155v3.486c0 .086.07.155.156.155h.56c.087 0 .157-.07.157-.155v-2.07l1.6 2.16a.154.154 0 0 0 .039.038l.001.001.01.006.004.002a.066.066 0 0 0 .008.004l.007.003.005.002a.168.168 0 0 0 .01.003h.003a.155.155 0 0 0 .04.006h.56c.087 0 .157-.07.157-.155V4.918a.156.156 0 0 0-.156-.156h-.561Zm3.815.717v-.56a.156.156 0 0 0-.155-.157h-2.242a.155.155 0 0 0-.108.044h-.001l-.001.002-.002.003a.155.155 0 0 0-.044.107v3.486c0 .041.017.08.044.107l.002.003.002.002a.155.155 0 0 0 .108.043h2.242c.086 0 .155-.07.155-.156v-.56a.156.156 0 0 0-.155-.157H11.81v-.589h1.525c.086 0 .155-.07.155-.156v-.56a.156.156 0 0 0-.155-.157H11.81v-.589h1.525c.086 0 .155-.07.155-.156Z"/>
+                        </svg>
+                        <span class="ml-2 text-gray-700">LINE 洽詢：@shuaimooo(小毛)</span>
                     </div>
                 </div>
-
-                <div class="mb-6">
-                    <h4 class="font-medium mb-2">訂單項目</h4>
-                    <div class="bg-gray-50 rounded-md p-4">
-                        <div class="space-y-3" id="modal-order-items">
-                            <!-- 訂單項目將由 JavaScript 動態生成 -->
-                        </div>
-                        <div class="border-t mt-4 pt-4 flex justify-between">
-                            <span class="font-medium">總計金額</span>
-                            <span id="modal-total-amount" class="font-medium">NT$0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <h4 class="font-medium mb-2">訂單狀態</h4>
-                    <div class="flex items-center space-x-3">
-                        <select id="modal-status-select" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                            <option value="pending">待處理</option>
-                            <option value="confirmed">已確認</option>
-                            <option value="shipped">已出貨</option>
-                            <option value="completed">已完成</option>
-                            <option value="cancelled">已取消</option>
-                        </select>
-                        <button id="update-status-btn" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md transition-colors">
-                            更新狀態
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="font-medium mb-2">備註</h4>
-                    <textarea id="modal-notes" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" rows="3" placeholder="新增備註..."></textarea>
-                </div>
-            </div>
-            <div class="border-t px-6 py-4 flex justify-end space-x-3">
-                <button id="print-order-btn" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
-                    列印訂單
-                </button>
-                <button id="save-order-btn" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md transition-colors">
-                    儲存變更
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 產品編輯彈窗 -->
-    <div id="product-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
-            <div class="border-b px-6 py-4 flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900" id="product-modal-title">編輯產品</h3>
-                <button id="close-product-modal" class="text-gray-400 hover:text-gray-500">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div class="px-6 py-4">
-                <form id="product-form">
-                    <input type="hidden" id="product-id">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="product-type">產品類型</label>
-                            <select id="product-type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                <option value="土雞">土雞</option>
-                                <option value="仿土雞">仿土雞</option>
-                                <option value="冷凍雞">冷凍雞</option>
-                                <option value="生鮮雞">生鮮雞</option>
-                                <option value="熟雞">熟雞</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="product-spec">規格</label>
-                            <input type="text" id="product-spec" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="例：2.0-2.2kg/隻">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="product-feature">特色</label>
-                            <input type="text" id="product-feature" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="產品特色描述">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="product-price">售價 (元/隻)</label>
-                            <input type="number" id="product-price" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" min="0">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" for="product-stock">成本</label>
-                            <input type="number" id="product-stock" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500" min="0">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="border-t px-6 py-4 flex justify-end space-x-3">
-                <button id="cancel-product-btn" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
-                    取消
-                </button>
-                <button id="save-product-btn" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md transition-colors">
-                    儲存
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 前台訂購表單 -->
-    <div id="order-form-page" class="hidden min-h-screen bg-amber-50 py-12">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-8">
-                <svg class="h-12 w-12 text-amber-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                </svg>
-                <h1 class="mt-2 text-3xl font-bold text-gray-900">優質雞肉訂購</h1>
-                <p class="mt-1 text-gray-600">新鮮直送，健康美味</p>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold mb-4">訂購表單</h2>
-                <form id="chicken-order-form">
-                    <div class="mb-6">
-                        <h3 class="text-lg font-medium mb-3">選擇產品</h3>
-                        <div class="space-y-4" id="order-products-container">
-                            <!-- 產品選項將由 JavaScript 動態生成 -->
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <h3 class="text-lg font-medium mb-3">聯絡資訊</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="customer-name">姓名</label>
-                                <input type="text" id="customer-name" name="customer_name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="customer-phone">電話</label>
-                                <input type="tel" id="customer-phone" name="customer_phone" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="customer-address">配送地址</label>
-                                <input type="text" id="customer-address" name="customer_address" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1" for="customer-notes">備註</label>
-                                <textarea id="customer-notes" name="customer_notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="border-t pt-4 flex justify-between items-center">
-                        <div>
-                            <p class="text-sm text-gray-600">總計金額</p>
-                            <p class="text-xl font-medium text-amber-600" id="total-price">NT$0</p>
-                            <p class="text-sm text-gray-500 mt-1" id="discount-info">未達批發優惠門檻</p>
-                        </div>
-                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-md transition-colors">
-                            提交訂單
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="mt-8 text-center">
-                <button id="back-to-admin" class="text-amber-600 hover:text-amber-700 font-medium">
-                    返回管理後台
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 訂單成功提交彈窗 -->
-    <div id="order-success-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 text-center">
-            <svg class="h-16 w-16 text-green-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 class="text-xl font-medium text-gray-900 mb-2">訂單提交成功！</h3>
-            <p class="text-gray-600 mb-6">您的訂單已成功提交，我們將盡快處理。</p>
-            <p class="text-gray-800 font-medium mb-6">訂單編號: <span id="success-order-id"></span></p>
-            <div class="flex justify-center">
-                <button id="close-success-modal" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-md transition-colors">
-                    確定
-                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // 全局變數
-        let orders = [];
-        let products = [];
-        let currentUser = null;
-
-        // 狀態對應的中文名稱和樣式
-        const statusMap = {
-            pending: { text: '待處理', class: 'status-pending' },
-            confirmed: { text: '已確認', class: 'status-confirmed' },
-            shipped: { text: '已出貨', class: 'status-shipped' },
-            completed: { text: '已完成', class: 'status-completed' },
-            cancelled: { text: '已取消', class: 'status-cancelled' }
-        };
-
-        // 初始化頁面
-        document.addEventListener('DOMContentLoaded', () => {
-            // 初始化產品資料
-            initializeProducts();
-            
-            // 從 localStorage 載入訂單資料
-            loadOrdersFromStorage();
-            
-            // 登入功能
-            document.getElementById('login-btn').addEventListener('click', handleLogin);
-            
-            // 登出功能
-            document.getElementById('logout-btn').addEventListener('click', handleLogout);
-            
-            // 標籤切換功能
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const tabId = tab.dataset.tab;
-                    switchTab(tabId);
-                });
-            });
-            
-            // 訂單詳情彈窗功能
-            document.getElementById('close-modal').addEventListener('click', () => {
-                document.getElementById('order-modal').classList.add('hidden');
-            });
-            
-            // 更新訂單狀態
-            document.getElementById('update-status-btn').addEventListener('click', updateOrderStatus);
-            
-            // 儲存訂單變更
-            document.getElementById('save-order-btn').addEventListener('click', saveOrderChanges);
-            
-            // 列印訂單
-            document.getElementById('print-order-btn').addEventListener('click', printOrder);
-            
-            // 新增訂單按鈕
-            document.getElementById('new-order-btn').addEventListener('click', showOrderForm);
-            
-            // 返回管理後台按鈕
-            document.getElementById('back-to-admin').addEventListener('click', showAdminPage);
-            
-            // 訂單表單提交
-            document.getElementById('chicken-order-form').addEventListener('submit', handleOrderSubmit);
-            
-            // 關閉訂單成功彈窗
-            document.getElementById('close-success-modal').addEventListener('click', () => {
-                document.getElementById('order-success-modal').classList.add('hidden');
-                showAdminPage();
-            });
-            
-            // 篩選功能
-            document.getElementById('filter-status').addEventListener('change', filterOrders);
-            document.getElementById('filter-date').addEventListener('change', filterOrders);
-            document.getElementById('search-order').addEventListener('input', filterOrders);
-            
-            // 分頁按鈕
-            document.getElementById('prev-page').addEventListener('click', () => {
-                alert('切換到上一頁');
-            });
-            document.getElementById('next-page').addEventListener('click', () => {
-                alert('切換到下一頁');
-            });
-            
-            // 產品相關功能
-            document.getElementById('add-product-btn').addEventListener('click', () => openProductModal());
-            document.getElementById('close-product-modal').addEventListener('click', () => {
-                document.getElementById('product-modal').classList.add('hidden');
-            });
-            document.getElementById('cancel-product-btn').addEventListener('click', () => {
-                document.getElementById('product-modal').classList.add('hidden');
-            });
-            document.getElementById('save-product-btn').addEventListener('click', saveProduct);
-            
-            // 檢查是否已登入
-            checkLoginStatus();
-        });
-
-        // 初始化產品資料
-        function initializeProducts() {
-            const storedProducts = localStorage.getItem('chickenProducts');
-            if (storedProducts) {
-                products = JSON.parse(storedProducts);
-            } else {
-                // 如果沒有儲存的產品，使用預設資料
-                products = [
-                    { id: 1, type: '土雞', spec: '2.0-2.2kg/隻', feature: '放養飼養，肉質結實，風味佳', price: 380, stock: 320 },
-                    { id: 2, type: '土雞', spec: '2.3-2.5kg/隻', feature: '放養飼養，肉質結實，風味佳', price: 420, stock: 350 },
-                    { id: 3, type: '仿土雞', spec: '1.8-2.0kg/隻', feature: '半放養，肉質鮮嫩，性價比高', price: 290, stock: 240 },
-                    { id: 4, type: '仿土雞', spec: '2.1-2.3kg/隻', feature: '半放養，肉質鮮嫩，性價比高', price: 310, stock: 260 },
-                    { id: 5, type: '冷凍雞', spec: '1.5-1.7kg/隻', feature: '速凍保鮮，方便存放，適合大量採購', price: 220, stock: 180 },
-                    { id: 6, type: '冷凍雞', spec: '1.8-2.0kg/隻', feature: '速凍保鮮，方便存放，適合大量採購', price: 240, stock: 200 },
-                    { id: 7, type: '生鮮雞', spec: '1.8-2.0kg/隻', feature: '當日宰殺，新鮮直送', price: 270, stock: 220 },
-                    { id: 8, type: '熟雞', spec: '1.8-2.0kg/隻', feature: '特製醬料醃製，真空包裝', price: 350, stock: 280 }
-                ];
-                saveProductsToStorage();
-            }
-            
-            // 渲染產品列表
-            renderProducts();
-        }
-
-        // 從 localStorage 載入訂單資料
-        function loadOrdersFromStorage() {
-            const storedOrders = localStorage.getItem('chickenOrders');
-            if (storedOrders) {
-                orders = JSON.parse(storedOrders);
-            } else {
-                // 如果沒有儲存的訂單，使用範例資料
-                orders = [
-                    {
-                        id: 'ORD-' + generateOrderId(),
-                        customer: '王小明',
-                        date: formatDate(new Date()),
-                        amount: 3800,
-                        status: 'pending',
-                        phone: '0912-345-678',
-                        address: '台北市信義區松高路123號7樓',
-                        items: [
-                            { id: 1, name: '土雞 (2.0-2.2kg/隻)', price: 380, quantity: 10 }
-                        ],
-                        notes: ''
-                    }
-                ];
-                saveOrdersToStorage();
-            }
-        }
-
-        // 儲存產品資料到 localStorage
-        function saveProductsToStorage() {
-            localStorage.setItem('chickenProducts', JSON.stringify(products));
-        }
-
-        // 儲存訂單資料到 localStorage
-        function saveOrdersToStorage() {
-            localStorage.setItem('chickenOrders', JSON.stringify(orders));
-        }
-
-        // 處理登入
-        function handleLogin(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // 簡單的驗證，實際應用中應使用更安全的方式
-            if (username === 'admin' && password === 'admin') {
-                currentUser = {
-                    username: username,
-                    role: 'admin'
-                };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showAdminPage();
-            } else {
-                alert('帳號或密碼錯誤');
-            }
-        }
-
-        // 處理登出
-        function handleLogout() {
-            localStorage.removeItem('currentUser');
-            currentUser = null;
-            showLoginPage();
-        }
-
-        // 檢查登入狀態
-        function checkLoginStatus() {
-            const storedUser = localStorage.getItem('currentUser');
-            if (storedUser) {
-                currentUser = JSON.parse(storedUser);
-                document.getElementById('admin-name').textContent = currentUser.username;
-                showAdminPage();
-            } else {
-                showLoginPage();
-            }
-        }
-
-        // 顯示登入頁面
-        function showLoginPage() {
-            document.getElementById('login-page').classList.remove('hidden');
-            document.getElementById('main-page').classList.add('hidden');
-            document.getElementById('order-form-page').classList.add('hidden');
-        }
-
-        // 顯示管理後台頁面
-        function showAdminPage() {
-            document.getElementById('login-page').classList.add('hidden');
-            document.getElementById('main-page').classList.remove('hidden');
-            document.getElementById('order-form-page').classList.add('hidden');
-            
-            // 重新渲染訂單列表
-            renderOrders(orders);
-            
-            // 重新渲染產品列表
-            renderProducts();
-        }
-
-        // 顯示訂購表單頁面
-        function showOrderForm() {
-            document.getElementById('login-page').classList.add('hidden');
-            document.getElementById('main-page').classList.add('hidden');
-            document.getElementById('order-form-page').classList.remove('hidden');
-            
-            // 重置表單
-            document.getElementById('chicken-order-form').reset();
-            
-            // 渲染產品選項
-            renderOrderProducts();
-            
-            // 計算總價
-            calculateTotalPrice();
-        }
-
-        // 切換標籤
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
-            document.getElementById(`${tabId}-tab`).classList.add('active');
-        }
-
-        // 渲染產品列表
-        function renderProducts() {
-            const tableBody = document.getElementById('product-table-body');
-            tableBody.innerHTML = '';
-            
-            products.forEach(product => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50';
-                tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">${product.type}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${product.spec}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm text-gray-900">${product.feature}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${product.price}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${product.stock}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <button class="edit-product text-blue-600 hover:text-blue-800 mr-3" data-id="${product.id}">
-                            編輯
-                        </button>
-                        <button class="delete-product text-red-600 hover:text-red-800" data-id="${product.id}">
-                            刪除
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            });
-            
-            // 添加事件監聽器
-            document.querySelectorAll('.edit-product').forEach(btn => {
-                btn.addEventListener('click', () => openProductModal(parseInt(btn.dataset.id)));
-            });
-            
-            document.querySelectorAll('.delete-product').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (confirm('確定要刪除此產品嗎？')) {
-                        deleteProduct(parseInt(btn.dataset.id));
-                    }
-                });
-            });
-        }
-
-        // 渲染訂單列表
-        function renderOrders(ordersList) {
-            const tableBody = document.getElementById('orders-table-body');
-            tableBody.innerHTML = '';
-            
-            if (ordersList.length === 0) {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td colspan="6" class="py-4 px-4 text-center text-gray-500">
-                        暫無訂單資料
-                    </td>
-                `;
-                tableBody.appendChild(tr);
-            } else {
-                ordersList.forEach(order => {
-                    const tr = document.createElement('tr');
-                    tr.className = 'border-b hover:bg-gray-50';
-                    tr.innerHTML = `
-                        <td class="py-4 px-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">${order.id}</div>
-                        </td>
-                        <td class="py-4 px-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">${order.customer}</div>
-                        </td>
-                        <td class="py-4 px-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">${order.date}</div>
-                        </td>
-                        <td class="py-4 px-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">NT$${order.amount.toLocaleString()}</div>
-                        </td>
-                        <td class="py-4 px-4 whitespace-nowrap">
-                            <span class="status-badge ${statusMap[order.status].class}">
-                                ${statusMap[order.status].text}
-                            </span>
-                        </td>
-                        <td class="py-4 px-4 whitespace-nowrap text-right order-actions">
-                            <button class="view-order text-amber-600 hover:text-amber-800 mr-2" data-id="${order.id}">
-                                查看
-                            </button>
-                            <button class="edit-order text-blue-600 hover:text-blue-800 mr-2" data-id="${order.id}">
-                                編輯
-                            </button>
-                            <button class="delete-order text-red-600 hover:text-red-800" data-id="${order.id}">
-                                刪除
-                            </button>
-                        </td>
-                    `;
-                    tableBody.appendChild(tr);
-                });
-            }
-            
-            // 更新顯示計數
-            document.getElementById('total-count').textContent = ordersList.length;
-            document.getElementById('showing-end').textContent = Math.min(10, ordersList.length);
-            
-            // 添加事件監聽器
-            document.querySelectorAll('.view-order, .edit-order').forEach(btn => {
-                btn.addEventListener('click', () => openOrderModal(btn.dataset.id));
-            });
-            
-            document.querySelectorAll('.delete-order').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (confirm(`確定要刪除訂單 ${btn.dataset.id} 嗎？`)) {
-                        deleteOrder(btn.dataset.id);
-                    }
-                });
-            });
-        }
-
-        // 渲染訂購表單中的產品選項
-        function renderOrderProducts() {
-            const container = document.getElementById('order-products-container');
-            container.innerHTML = '';
-            
-            products.forEach(product => {
-                if (product.stock > 0) {
-                    const div = document.createElement('div');
-                    div.className = 'flex items-center justify-between p-4 border rounded-md hover:bg-gray-50';
-                    div.innerHTML = `
-                        <div>
-                            <h4 class="font-medium">${product.type} (${product.spec})</h4>
-                            <p class="text-sm text-gray-500">${product.feature}</p>
-                            <p class="text-amber-600 mt-1">NT$${product.price}/隻</p>
-                        </div>
-                        <div class="flex items-center">
-                            <label class="mr-2 text-sm">數量 (隻):</label>
-                            <input type="number" name="product_${product.id}" min="0" max="${product.stock}" value="0" class="w-16 px-2 py-1 border rounded-md product-quantity" data-price="${product.price}" data-id="${product.id}">
-                        </div>
-                    `;
-                    container.appendChild(div);
-                }
-            });
-            
-            // 添加事件監聽器
-            document.querySelectorAll('.product-quantity').forEach(input => {
-                input.addEventListener('change', calculateTotalPrice);
-            });
-        }
-
-        // 打開訂單詳情彈窗
-        function openOrderModal(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (!order) return;
-            
-            // 填充訂單基本信息
-            document.getElementById('modal-order-id').textContent = order.id;
-            document.getElementById('modal-order-date').textContent = order.date;
-            document.getElementById('modal-customer-name').textContent = order.customer;
-            document.getElementById('modal-customer-phone').textContent = order.phone;
-            document.getElementById('modal-shipping-address').textContent = order.address;
-            document.getElementById('modal-total-amount').textContent = `NT$${order.amount.toLocaleString()}`;
-            document.getElementById('modal-notes').value = order.notes || '';
-            
-            // 設置當前狀態
-            document.getElementById('modal-status-select').value = order.status;
-            
-            // 填充訂單項目
-            const itemsContainer = document.getElementById('modal-order-items');
-            itemsContainer.innerHTML = '';
-            order.items.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'flex justify-between';
-                itemDiv.innerHTML = `
-                    <div>
-                        <span class="text-gray-800">${item.name}</span>
-                        <span class="text-gray-500 ml-2">x${item.quantity} 隻</span>
-                    </div>
-                    <span class="text-gray-800">NT$${(item.price * item.quantity).toLocaleString()}</span>
-                `;
-                itemsContainer.appendChild(itemDiv);
-            });
-            
-            // 顯示彈窗
-            document.getElementById('order-modal').classList.remove('hidden');
-        }
-
-        // 打開產品編輯彈窗
-        function openProductModal(productId = null) {
-            if (productId) {
-                // 編輯現有產品
-                const product = products.find(p => p.id === productId);
-                if (!product) return;
-                
-                document.getElementById('product-modal-title').textContent = '編輯產品';
-                document.getElementById('product-id').value = product.id;
-                document.getElementById('product-type').value = product.type;
-                document.getElementById('product-spec').value = product.spec;
-                document.getElementById('product-feature').value = product.feature;
-                document.getElementById('product-price').value = product.price;
-                document.getElementById('product-stock').value = product.stock;
-            } else {
-                // 新增產品
-                document.getElementById('product-modal-title').textContent = '新增產品';
-                document.getElementById('product-id').value = '';
-                document.getElementById('product-form').reset();
-            }
-            
-            document.getElementById('product-modal').classList.remove('hidden');
-        }
-
-        // 儲存產品
-        function saveProduct() {
-            const id = document.getElementById('product-id').value;
-            const type = document.getElementById('product-type').value;
-            const spec = document.getElementById('product-spec').value;
-            const feature = document.getElementById('product-feature').value;
-            const price = parseInt(document.getElementById('product-price').value);
-            const stock = parseInt(document.getElementById('product-stock').value);
-            
-            if (!type || !spec || !feature || isNaN(price) || isNaN(stock)) {
-                alert('請填寫所有必填欄位');
-                return;
-            }
-            
-            if (id) {
-                // 更新現有產品
-                const index = products.findIndex(p => p.id === parseInt(id));
-                if (index !== -1) {
-                    products[index] = {
-                        id: parseInt(id),
-                        type,
-                        spec,
-                        feature,
-                        price,
-                        stock
-                    };
-                }
-            } else {
-                // 新增產品
-                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-                products.push({
-                    id: newId,
-                    type,
-                    spec,
-                    feature,
-                    price,
-                    stock
-                });
-            }
-            
-            saveProductsToStorage();
-            renderProducts();
-            document.getElementById('product-modal').classList.add('hidden');
-        }
-
-        // 刪除產品
-        function deleteProduct(productId) {
-            const index = products.findIndex(p => p.id === productId);
-            if (index !== -1) {
-                products.splice(index, 1);
-                saveProductsToStorage();
-                renderProducts();
-            }
-        }
-
-        // 更新訂單狀態
-        function updateOrderStatus() {
-            const orderId = document.getElementById('modal-order-id').textContent;
-            const newStatus = document.getElementById('modal-status-select').value;
-            
-            // 更新訂單狀態
-            const orderIndex = orders.findIndex(o => o.id === orderId);
-            if (orderIndex !== -1) {
-                orders[orderIndex].status = newStatus;
-                saveOrdersToStorage();
-                renderOrders(orders);
-                alert(`訂單 ${orderId} 狀態已更新為 ${statusMap[newStatus].text}`);
-            }
-        }
-
-        // 儲存訂單變更
-        function saveOrderChanges() {
-            const orderId = document.getElementById('modal-order-id').textContent;
-            const notes = document.getElementById('modal-notes').value;
-            
-            // 更新訂單備註
-            const orderIndex = orders.findIndex(o => o.id === orderId);
-            if (orderIndex !== -1) {
-                orders[orderIndex].notes = notes;
-                saveOrdersToStorage();
-                alert('訂單變更已儲存');
-                document.getElementById('order-modal').classList.add('hidden');
-            }
-        }
-
-        // 列印訂單
-        function printOrder() {
-            const orderId = document.getElementById('modal-order-id').textContent;
-            alert(`準備列印訂單 ${orderId}...`);
-            // 在實際應用中，這裡會調用瀏覽器的列印功能
-        }
-
-        // 刪除訂單
-        function deleteOrder(orderId) {
-            const index = orders.findIndex(order => order.id === orderId);
-            if (index !== -1) {
-                orders.splice(index, 1);
-                saveOrdersToStorage();
-                renderOrders(orders);
-                alert(`訂單 ${orderId} 已刪除`);
-            }
-        }
-
-        // 處理訂單提交
-        function handleOrderSubmit(e) {
+        document.getElementById('chickenSupplyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // 獲取表單數據
-            const formData = new FormData(e.target);
-            const customerName = formData.get('customer_name');
-            const customerPhone = formData.get('customer_phone');
-            const customerAddress = formData.get('customer_address');
-            const customerNotes = formData.get('customer_notes');
-            
-            // 獲取產品數量
-            const orderItems = [];
-            let totalQuantity = 0;
-            let subtotal = 0;
-            
-            document.querySelectorAll('.product-quantity').forEach(input => {
-                const productId = parseInt(input.dataset.id);
-                const quantity = parseInt(input.value);
-                const price = parseInt(input.dataset.price);
-                
-                if (quantity > 0) {
-                    const product = products.find(p => p.id === productId);
-                    orderItems.push({
-                        id: productId,
-                        name: `${product.type} (${product.spec})`,
-                        price: price,
-                        quantity: quantity
-                    });
-                    totalQuantity += quantity;
-                    subtotal += price * quantity;
-                }
-            });
-            
-            // 檢查是否有選擇產品
-            if (orderItems.length === 0) {
-                alert('請至少選擇一項產品');
-                return;
-            }
-            
-            // 計算折扣
-            let discount = 1;
-            if (totalQuantity >= 51) {
-                discount = 0.85; // 85折
-            } else if (totalQuantity >= 31) {
-                discount = 0.9; // 9折
-            } else if (totalQuantity >= 10) {
-                discount = 0.95; // 95折
-            }
-            
-            // 計算總金額
-            const totalAmount = Math.round(subtotal * discount);
-            
-            // 創建新訂單
-            const newOrder = {
-                id: 'ORD-' + generateOrderId(),
-                customer: customerName,
-                date: formatDate(new Date()),
-                amount: totalAmount,
-                status: 'pending',
-                phone: customerPhone,
-                address: customerAddress,
-                items: orderItems,
-                notes: customerNotes,
-                discount: discount
+            // Collect form data
+            const formData = {
+                businessName: document.getElementById('businessName').value,
+                contactName: document.getElementById('contactName').value,
+                contactInfo: document.getElementById('contactInfo').value,
+                region: document.getElementById('region').value,
+                address: document.getElementById('address').value,
+                cooperationType: Array.from(document.querySelectorAll('input[name="cooperationType"]:checked')).map(el => el.value),
+                chickenType: Array.from(document.querySelectorAll('input[name="chickenType"]:checked')).map(el => {
+                    if(el.value === '其他') {
+                        return '其他: ' + document.getElementById('chickenOtherText').value;
+                    }
+                    return el.value;
+                }),
+                packaging: Array.from(document.querySelectorAll('input[name="packaging"]:checked')).map(el => {
+                    if(el.value === '其他') {
+                        return '其他: ' + document.getElementById('packageOtherText').value;
+                    }
+                    return el.value;
+                }),
+                quantity: document.getElementById('quantityOther').checked ? 
+                    '其他: ' + document.getElementById('quantityOtherText').value : 
+                    document.getElementById('quantity').value,
+                sampleRequest: document.querySelector('input[name="sampleRequest"]:checked')?.value || '',
+                notes: document.getElementById('notes').value
             };
             
-            // 更新產品庫存
-            orderItems.forEach(item => {
-                const productIndex = products.findIndex(p => p.id === item.id);
-                if (productIndex !== -1) {
-                    products[productIndex].stock -= item.quantity;
-                }
-            });
-            saveProductsToStorage();
+            // In a real application, you would send this data to your server
+            console.log('Form submitted with data:', formData);
             
-            // 添加到訂單列表
-            orders.unshift(newOrder);
-            saveOrdersToStorage();
+            // Show success message
+            alert('表單已成功提交！我們將儘快與您聯繫。');
             
-            // 顯示成功訊息
-            document.getElementById('success-order-id').textContent = newOrder.id;
-            document.getElementById('order-success-modal').classList.remove('hidden');
-            
-            // 重置表單
-            e.target.reset();
-        }
-
-        // 計算總價
-        function calculateTotalPrice() {
-            let subtotal = 0;
-            let totalQuantity = 0;
-            
-            document.querySelectorAll('.product-quantity').forEach(input => {
-                const quantity = parseInt(input.value) || 0;
-                const price = parseInt(input.dataset.price);
-                subtotal += quantity * price;
-                totalQuantity += quantity;
-            });
-            
-            // 計算折扣
-            let discount = 1;
-            let discountText = '未達批發優惠門檻';
-            
-            if (totalQuantity >= 51) {
-                discount = 0.85;
-                discountText = '批發優惠：85折';
-            } else if (totalQuantity >= 31) {
-                discount = 0.9;
-                discountText = '批發優惠：9折';
-            } else if (totalQuantity >= 10) {
-                discount = 0.95;
-                discountText = '批發優惠：95折';
-            }
-            
-            const totalPrice = Math.round(subtotal * discount);
-            
-            document.getElementById('total-price').textContent = `NT$${totalPrice.toLocaleString()}`;
-            document.getElementById('discount-info').textContent = discountText;
-        }
-
-        // 篩選訂單
-        function filterOrders() {
-            const statusFilter = document.getElementById('filter-status').value;
-            const dateFilter = document.getElementById('filter-date').value;
-            const searchText = document.getElementById('search-order').value.toLowerCase();
-            
-            let filteredOrders = [...orders];
-            
-            // 按狀態篩選
-            if (statusFilter !== 'all') {
-                filteredOrders = filteredOrders.filter(order => order.status === statusFilter);
-            }
-            
-            // 按日期篩選
-            if (dateFilter !== 'all') {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                if (dateFilter === 'today') {
-                    filteredOrders = filteredOrders.filter(order => {
-                        const orderDate = new Date(order.date.split(' ')[0]);
-                        return orderDate.toDateString() === today.toDateString();
-                    });
-                } else if (dateFilter === 'yesterday') {
-                    const yesterday = new Date(today);
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    filteredOrders = filteredOrders.filter(order => {
-                        const orderDate = new Date(order.date.split(' ')[0]);
-                        return orderDate.toDateString() === yesterday.toDateString();
-                    });
-                } else if (dateFilter === 'week') {
-                    const weekStart = new Date(today);
-                    weekStart.setDate(today.getDate() - today.getDay());
-                    filteredOrders = filteredOrders.filter(order => {
-                        const orderDate = new Date(order.date.split(' ')[0]);
-                        return orderDate >= weekStart;
-                    });
-                } else if (dateFilter === 'month') {
-                    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-                    filteredOrders = filteredOrders.filter(order => {
-                        const orderDate = new Date(order.date.split(' ')[0]);
-                        return orderDate >= monthStart;
-                    });
-                }
-            }
-            
-            // 按搜尋文字篩選
-            if (searchText) {
-                filteredOrders = filteredOrders.filter(order => 
-                    order.id.toLowerCase().includes(searchText) || 
-                    order.customer.toLowerCase().includes(searchText)
-                );
-            }
-            
-            renderOrders(filteredOrders);
-        }
-
-        // 生成訂單 ID
-        function generateOrderId() {
-            const date = new Date();
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-            return `${year}${month}${day}-${random}`;
-        }
-
-        // 格式化日期
-        function formatDate(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = String(date.getSeconds()).padStart(2, '0');
-            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        }
+            // Optional: Reset form
+            // this.reset();
+        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9548383eb398f07b',t:'MTc1MDcyNjEwOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'956a0b69d058f05b',t:'MTc1MTA4MDc4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
