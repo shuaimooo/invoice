@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>進貨銷售管理系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- 標題 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">📊 進貨銷售管理系統</h1>
+            <p class="text-gray-600">完整記錄買家與供應商交易，含年度統計分析</p>
+        </div>
+
+        <!-- 買家管理區域 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-green-500">
+            <h2 class="text-2xl font-semibold text-green-700 mb-4 flex items-center">
+                🛒 買家管理
+            </h2>
+            <div class="mb-4">
+                <button onclick="openBuyerModal()" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-medium transition-colors text-lg shadow-lg">
+                    ➕ 新增買家訂單
+                </button>
+            </div>
+            
+            <!-- 買家記錄表 -->
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300 text-sm">
+                    <thead class="bg-green-50">
+                        <tr>
+                            <th class="border border-gray-300 px-2 py-2 text-left">姓名</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">電話</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">訂購日</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">數量(斤)</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">單價</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">交貨日</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">地址</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">金額</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">備註</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="buyerTable">
+                        <tr>
+                            <td colspan="10" class="border border-gray-300 px-4 py-8 text-center text-gray-500">尚無買家記錄</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 供應商管理區域 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-blue-500">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
+                🏭 供應商管理
+            </h2>
+            <div class="mb-4">
+                <button onclick="openSupplierModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-medium transition-colors text-lg shadow-lg">
+                    ➕ 新增供應商訂單
+                </button>
+            </div>
+            
+            <!-- 供應商記錄表 -->
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300 text-sm">
+                    <thead class="bg-blue-50">
+                        <tr>
+                            <th class="border border-gray-300 px-2 py-2 text-left">訂購日</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">數量(斤)</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">單價(成本)</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">取貨日</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">地址</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">金額</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">備註</th>
+                            <th class="border border-gray-300 px-2 py-2 text-left">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="supplierTable">
+                        <tr>
+                            <td colspan="8" class="border border-gray-300 px-4 py-8 text-center text-gray-500">尚無供應商記錄</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 月度統計區域 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-purple-500">
+            <h2 class="text-2xl font-semibold text-purple-700 mb-4 flex items-center">
+                📈 月度統計
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">總成本</div>
+                    <div class="text-xl font-bold text-blue-700" id="monthlyTotalCost">$0</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">總支出</div>
+                    <div class="text-xl font-bold text-green-700" id="monthlyTotalRevenue">$0</div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">總數量(斤)</div>
+                    <div class="text-xl font-bold text-gray-700" id="monthlyTotalQty">0</div>
+                </div>
+                <div class="p-4 rounded-lg text-center" id="monthlyProfitContainer">
+                    <div class="text-sm text-gray-600 mb-1">利潤</div>
+                    <div class="text-xl font-bold" id="monthlyProfit">$0</div>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">本月</div>
+                    <div class="text-lg font-bold text-yellow-700" id="currentMonth"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 年度統計區域 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-orange-500">
+            <h2 class="text-2xl font-semibold text-orange-700 mb-4 flex items-center">
+                📊 年度統計
+            </h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">選擇年份</label>
+                <select id="yearSelect" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500" onchange="updateYearlyStats()">
+                    <!-- 年份選項會由JavaScript動態生成 -->
+                </select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">年度總成本</div>
+                    <div class="text-2xl font-bold text-blue-700" id="yearlyTotalCost">$0</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">年度總收入</div>
+                    <div class="text-2xl font-bold text-green-700" id="yearlyTotalRevenue">$0</div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">年度總數量(斤)</div>
+                    <div class="text-2xl font-bold text-gray-700" id="yearlyTotalQty">0</div>
+                </div>
+                <div class="p-4 rounded-lg text-center" id="yearlyProfitContainer">
+                    <div class="text-sm text-gray-600 mb-1">年度利潤</div>
+                    <div class="text-2xl font-bold" id="yearlyProfit">$0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按鈕 -->
+        <div class="text-center">
+            <button onclick="clearAllData()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-lg mr-4">
+                🗑️ 清除所有資料
+            </button>
+            <button onclick="exportData()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-lg">
+                📄 匯出資料
+            </button>
+        </div>
+    </div>
+
+    <!-- 買家訂單彈出視窗 -->
+    <div id="buyerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-green-700">新增買家訂單</h3>
+                    <button onclick="closeBuyerModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">姓名 *</label>
+                        <input type="text" id="buyerName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="買家姓名">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">電話 *</label>
+                        <input type="tel" id="buyerPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="聯絡電話">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">訂購日 *</label>
+                        <input type="date" id="buyerOrderDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">交貨日 *</label>
+                        <input type="date" id="buyerDeliveryDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">數量(斤) *</label>
+                        <input type="number" id="buyerQty" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="0" min="0" step="0.1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">單價 *</label>
+                        <div class="flex items-center">
+                            <span class="text-gray-600 mr-2">$</span>
+                            <input type="number" id="buyerPrice" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">地址</label>
+                        <input type="text" id="buyerAddress" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" placeholder="交貨地址">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">備註</label>
+                        <textarea id="buyerNote" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" rows="3" placeholder="備註說明"></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-4 mt-6">
+                    <button onclick="closeBuyerModal()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        取消
+                    </button>
+                    <button onclick="addBuyerOrder()" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors">
+                        新增訂單
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 供應商訂單彈出視窗 -->
+    <div id="supplierModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-blue-700">新增供應商訂單</h3>
+                    <button onclick="closeSupplierModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">訂購日 *</label>
+                        <input type="date" id="supplierOrderDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">取貨日 *</label>
+                        <input type="date" id="supplierPickupDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">數量(斤) *</label>
+                        <input type="number" id="supplierQty" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0" min="0" step="0.1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">單價(成本) *</label>
+                        <div class="flex items-center">
+                            <span class="text-gray-600 mr-2">$</span>
+                            <input type="number" id="supplierPrice" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">地址</label>
+                        <input type="text" id="supplierAddress" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="取貨地址">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">備註</label>
+                        <textarea id="supplierNote" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" rows="3" placeholder="備註說明"></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-4 mt-6">
+                    <button onclick="closeSupplierModal()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        取消
+                    </button>
+                    <button onclick="addSupplierOrder()" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                        新增訂單
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 資料儲存
+        let buyerData = [];
+        let supplierData = [];
+
+        // 格式化金額
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('zh-TW', {
+                style: 'currency',
+                currency: 'TWD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-TW');
+        }
+
+        // 開啟買家彈出視窗
+        function openBuyerModal() {
+            document.getElementById('buyerModal').classList.remove('hidden');
+        }
+
+        // 關閉買家彈出視窗
+        function closeBuyerModal() {
+            document.getElementById('buyerModal').classList.add('hidden');
+            clearBuyerForm();
+        }
+
+        // 開啟供應商彈出視窗
+        function openSupplierModal() {
+            document.getElementById('supplierModal').classList.remove('hidden');
+        }
+
+        // 關閉供應商彈出視窗
+        function closeSupplierModal() {
+            document.getElementById('supplierModal').classList.add('hidden');
+            clearSupplierForm();
+        }
+
+        // 新增買家訂單
+        function addBuyerOrder() {
+            const name = document.getElementById('buyerName').value.trim();
+            const phone = document.getElementById('buyerPhone').value.trim();
+            const orderDate = document.getElementById('buyerOrderDate').value;
+            const qty = parseFloat(document.getElementById('buyerQty').value);
+            const price = parseFloat(document.getElementById('buyerPrice').value);
+            const deliveryDate = document.getElementById('buyerDeliveryDate').value;
+            const address = document.getElementById('buyerAddress').value.trim();
+            const note = document.getElementById('buyerNote').value.trim();
+
+            if (!name || !phone || !orderDate || !qty || !price || !deliveryDate) {
+                alert('請填寫完整的買家資訊（姓名、電話、訂購日、數量、單價、交貨日為必填）');
+                return;
+            }
+
+            const order = {
+                id: Date.now(),
+                name: name,
+                phone: phone,
+                orderDate: orderDate,
+                quantity: qty,
+                price: price,
+                deliveryDate: deliveryDate,
+                address: address,
+                total: qty * price,
+                note: note
+            };
+
+            buyerData.push(order);
+            updateBuyerTable();
+            updateStatistics();
+            closeBuyerModal();
+        }
+
+        // 新增供應商訂單
+        function addSupplierOrder() {
+            const orderDate = document.getElementById('supplierOrderDate').value;
+            const qty = parseFloat(document.getElementById('supplierQty').value);
+            const price = parseFloat(document.getElementById('supplierPrice').value);
+            const pickupDate = document.getElementById('supplierPickupDate').value;
+            const address = document.getElementById('supplierAddress').value.trim();
+            const note = document.getElementById('supplierNote').value.trim();
+
+            if (!orderDate || !qty || !price || !pickupDate) {
+                alert('請填寫完整的供應商資訊（訂購日、數量、單價、取貨日為必填）');
+                return;
+            }
+
+            const order = {
+                id: Date.now(),
+                orderDate: orderDate,
+                quantity: qty,
+                price: price,
+                pickupDate: pickupDate,
+                address: address,
+                total: qty * price,
+                note: note
+            };
+
+            supplierData.push(order);
+            updateSupplierTable();
+            updateStatistics();
+            closeSupplierModal();
+        }
+
+        // 更新買家表格
+        function updateBuyerTable() {
+            const tbody = document.getElementById('buyerTable');
+            if (buyerData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="border border-gray-300 px-4 py-8 text-center text-gray-500">尚無買家記錄</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = buyerData.map((item, index) => `
+                <tr>
+                    <td class="border border-gray-300 px-2 py-2 font-medium text-green-700">${item.name}</td>
+                    <td class="border border-gray-300 px-2 py-2">${item.phone}</td>
+                    <td class="border border-gray-300 px-2 py-2">${formatDate(item.orderDate)}</td>
+                    <td class="border border-gray-300 px-2 py-2">${item.quantity}</td>
+                    <td class="border border-gray-300 px-2 py-2">${formatCurrency(item.price)}</td>
+                    <td class="border border-gray-300 px-2 py-2">${formatDate(item.deliveryDate)}</td>
+                    <td class="border border-gray-300 px-2 py-2">${item.address || '-'}</td>
+                    <td class="border border-gray-300 px-2 py-2 font-bold">${formatCurrency(item.total)}</td>
+                    <td class="border border-gray-300 px-2 py-2">${item.note || '-'}</td>
+                    <td class="border border-gray-300 px-2 py-2">
+                        <button onclick="deleteBuyer(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">刪除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 更新供應商表格
+        function updateSupplierTable() {
+            const tbody = document.getElementById('supplierTable');
+            if (supplierData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="border border-gray-300 px-4 py-8 text-center text-gray-500">尚無供應商記錄</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = supplierData.map((item, index) => `
+                <tr>
+                    <td class="border border-gray-300 px-2 py-2">${formatDate(item.orderDate)}</td>
+                    <td class="border border-gray-300 px-2 py-2">${item.quantity}</td>
+                    <td class="border border-gray-300 px-2 py-2">${formatCurrency(item.price)}</td>
+                    <td class="border border-gray-300 px-2 py-2">${formatDate(item.pickupDate)}</td>
+                    <td class="border border-gray-300 px-2 py-2">${item.address || '-'}</td>
+                    <td class="border border-gray-300 px-2 py-2 font-bold">${formatCurrency(item.total)}</td>
+                    <td class="border border-gray-300 px-2 py-2">${item.note || '-'}</td>
+                    <td class="border border-gray-300 px-2 py-2">
+                        <button onclick="deleteSupplier(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">刪除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 更新統計資料
+        function updateStatistics() {
+            updateMonthlyStats();
+            updateYearSelect();
+            updateYearlyStats();
+        }
+
+        // 更新月度統計
+        function updateMonthlyStats() {
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+
+            // 篩選本月資料
+            const monthlyBuyers = buyerData.filter(item => {
+                const date = new Date(item.orderDate);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            });
+
+            const monthlySuppliers = supplierData.filter(item => {
+                const date = new Date(item.orderDate);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            });
+
+            const totalCost = monthlySuppliers.reduce((sum, item) => sum + item.total, 0);
+            const totalRevenue = monthlyBuyers.reduce((sum, item) => sum + item.total, 0);
+            const totalQty = monthlyBuyers.reduce((sum, item) => sum + item.quantity, 0);
+            const profit = totalRevenue - totalCost;
+
+            document.getElementById('monthlyTotalCost').textContent = formatCurrency(totalCost);
+            document.getElementById('monthlyTotalRevenue').textContent = formatCurrency(totalRevenue);
+            document.getElementById('monthlyTotalQty').textContent = totalQty.toFixed(1);
+            document.getElementById('monthlyProfit').textContent = formatCurrency(profit);
+            document.getElementById('currentMonth').textContent = `${currentYear}年${currentMonth + 1}月`;
+
+            // 設定利潤顏色
+            const profitContainer = document.getElementById('monthlyProfitContainer');
+            if (profit > 0) {
+                profitContainer.className = 'bg-green-50 p-4 rounded-lg text-center';
+                document.getElementById('monthlyProfit').className = 'text-xl font-bold text-green-700';
+            } else if (profit < 0) {
+                profitContainer.className = 'bg-red-50 p-4 rounded-lg text-center';
+                document.getElementById('monthlyProfit').className = 'text-xl font-bold text-red-700';
+            } else {
+                profitContainer.className = 'bg-gray-50 p-4 rounded-lg text-center';
+                document.getElementById('monthlyProfit').className = 'text-xl font-bold text-gray-700';
+            }
+        }
+
+        // 更新年份選擇器
+        function updateYearSelect() {
+            const yearSelect = document.getElementById('yearSelect');
+            const years = new Set();
+            
+            buyerData.forEach(item => years.add(new Date(item.orderDate).getFullYear()));
+            supplierData.forEach(item => years.add(new Date(item.orderDate).getFullYear()));
+            
+            if (years.size === 0) {
+                years.add(new Date().getFullYear());
+            }
+
+            const sortedYears = Array.from(years).sort((a, b) => b - a);
+            yearSelect.innerHTML = sortedYears.map(year => 
+                `<option value="${year}">${year}年</option>`
+            ).join('');
+        }
+
+        // 更新年度統計
+        function updateYearlyStats() {
+            const selectedYear = parseInt(document.getElementById('yearSelect').value);
+            
+            // 篩選該年資料
+            const yearlyBuyers = buyerData.filter(item => {
+                const date = new Date(item.orderDate);
+                return date.getFullYear() === selectedYear;
+            });
+
+            const yearlySuppliers = supplierData.filter(item => {
+                const date = new Date(item.orderDate);
+                return date.getFullYear() === selectedYear;
+            });
+
+            const totalCost = yearlySuppliers.reduce((sum, item) => sum + item.total, 0);
+            const totalRevenue = yearlyBuyers.reduce((sum, item) => sum + item.total, 0);
+            const totalQty = yearlyBuyers.reduce((sum, item) => sum + item.quantity, 0);
+            const profit = totalRevenue - totalCost;
+
+            document.getElementById('yearlyTotalCost').textContent = formatCurrency(totalCost);
+            document.getElementById('yearlyTotalRevenue').textContent = formatCurrency(totalRevenue);
+            document.getElementById('yearlyTotalQty').textContent = totalQty.toFixed(1);
+            document.getElementById('yearlyProfit').textContent = formatCurrency(profit);
+
+            // 設定利潤顏色
+            const profitContainer = document.getElementById('yearlyProfitContainer');
+            if (profit > 0) {
+                profitContainer.className = 'bg-green-50 p-4 rounded-lg text-center';
+                document.getElementById('yearlyProfit').className = 'text-2xl font-bold text-green-700';
+            } else if (profit < 0) {
+                profitContainer.className = 'bg-red-50 p-4 rounded-lg text-center';
+                document.getElementById('yearlyProfit').className = 'text-2xl font-bold text-red-700';
+            } else {
+                profitContainer.className = 'bg-gray-50 p-4 rounded-lg text-center';
+                document.getElementById('yearlyProfit').className = 'text-2xl font-bold text-gray-700';
+            }
+        }
+
+        // 刪除記錄
+        function deleteBuyer(index) {
+            if (confirm('確定要刪除這筆買家記錄嗎？')) {
+                buyerData.splice(index, 1);
+                updateBuyerTable();
+                updateStatistics();
+            }
+        }
+
+        function deleteSupplier(index) {
+            if (confirm('確定要刪除這筆供應商記錄嗎？')) {
+                supplierData.splice(index, 1);
+                updateSupplierTable();
+                updateStatistics();
+            }
+        }
+
+        // 清除表單
+        function clearBuyerForm() {
+            document.getElementById('buyerName').value = '';
+            document.getElementById('buyerPhone').value = '';
+            document.getElementById('buyerOrderDate').value = '';
+            document.getElementById('buyerQty').value = '';
+            document.getElementById('buyerPrice').value = '';
+            document.getElementById('buyerDeliveryDate').value = '';
+            document.getElementById('buyerAddress').value = '';
+            document.getElementById('buyerNote').value = '';
+        }
+
+        function clearSupplierForm() {
+            document.getElementById('supplierOrderDate').value = '';
+            document.getElementById('supplierQty').value = '';
+            document.getElementById('supplierPrice').value = '';
+            document.getElementById('supplierPickupDate').value = '';
+            document.getElementById('supplierAddress').value = '';
+            document.getElementById('supplierNote').value = '';
+        }
+
+        // 清除所有資料
+        function clearAllData() {
+            if (confirm('確定要清除所有資料嗎？此操作無法復原！')) {
+                buyerData = [];
+                supplierData = [];
+                updateBuyerTable();
+                updateSupplierTable();
+                updateStatistics();
+                clearBuyerForm();
+                clearSupplierForm();
+            }
+        }
+
+        // 匯出資料
+        function exportData() {
+            const data = {
+                買家記錄: buyerData,
+                供應商記錄: supplierData,
+                匯出時間: new Date().toLocaleString('zh-TW')
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `進貨銷售記錄_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatistics();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9583d75f30fbf083',t:'MTc1MTM1MTI4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
